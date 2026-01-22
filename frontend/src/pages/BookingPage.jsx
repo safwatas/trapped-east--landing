@@ -169,13 +169,6 @@ export default function BookingPage() {
                       </button>
                     ))}
                   </div>
-                      {timeSlots.map((slot) => (
-                        <SelectItem key={slot} value={slot} className="text-white hover:bg-white/10">
-                          {slot}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   {errors.time && <p className="text-sm text-red-400">{errors.time}</p>}
                 </div>
 
