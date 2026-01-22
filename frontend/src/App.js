@@ -2,6 +2,23 @@ import React from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
+import ScrollToTop from "./components/ScrollToTop";
+
+// Suppress ResizeObserver errors (common with Radix UI)
+const suppressResizeObserverError = () => {
+  const resizeObserverErr = window.onerror;
+  window.onerror = function (message, source, lineno, colno, error) {
+    if (message === 'ResizeObserver loop completed with undelivered notifications.' ||
+        message === 'ResizeObserver loop limit exceeded') {
+      return true;
+    }
+    if (resizeObserverErr) {
+      return resizeObserverErr(message, source, lineno, colno, error);
+    }
+    return false;
+  };
+};
+suppressResizeObserverError();
 
 // Pages
 import HomePage from "./pages/HomePage";
