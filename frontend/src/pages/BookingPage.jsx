@@ -153,11 +153,22 @@ export default function BookingPage() {
                 {/* Time Selection */}
                 <div className="space-y-2">
                   <Label className="text-white">Select Time Slot *</Label>
-                  <Select value={selectedTime} onValueChange={setSelectedTime}>
-                    <SelectTrigger className={`w-full h-12 rounded-xl bg-black/30 border-white/10 text-white ${errors.time ? 'border-red-500' : ''}`}>
-                      <SelectValue placeholder="Choose a time" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[color:var(--bg-elevated)] border-white/10">
+                  <div className={`grid grid-cols-2 md:grid-cols-4 gap-2 ${errors.time ? 'ring-1 ring-red-500 rounded-xl p-1' : ''}`}>
+                    {timeSlots.map((slot) => (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => setSelectedTime(slot)}
+                        className={`h-11 rounded-xl border text-sm font-medium transition-all ${
+                          selectedTime === slot
+                            ? 'bg-[color:var(--brand-accent)] text-black border-[color:var(--brand-accent)]'
+                            : 'bg-black/30 text-white border-white/10 hover:border-white/30'
+                        }`}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
                       {timeSlots.map((slot) => (
                         <SelectItem key={slot} value={slot} className="text-white hover:bg-white/10">
                           {slot}
