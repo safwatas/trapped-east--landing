@@ -41,12 +41,20 @@ export const bookingAdapter = (dbBooking) => {
         id: dbBooking.id,
         customerName: dbBooking.customer_name,
         customerPhone: dbBooking.customer_phone,
+        customerEmail: dbBooking.customer_email,
         roomName: dbBooking.rooms?.name || 'Unknown Room',
         date: dbBooking.booking_date,
         timeSlot: dbBooking.time_slot,
         players: dbBooking.player_count,
         totalPrice: dbBooking.total_price,
         status: dbBooking.status,
-        notes: dbBooking.booking_notes?.[0]?.note || ''
+        notes: dbBooking.internal_notes || '',
+        utmSource: dbBooking.utm_source,
+        utmMedium: dbBooking.utm_medium,
+        utmCampaign: dbBooking.utm_campaign,
+        utmAdset: dbBooking.utm_adset,
+        utmAd: dbBooking.utm_ad,
+        fbclid: dbBooking.fbclid,
+        createdAt: dbBooking.created_at
     };
 };

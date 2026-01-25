@@ -102,7 +102,7 @@ export const bookingService = {
     async getAllBookings() {
         const { data, error } = await supabase
             .from('bookings')
-            .select('*, rooms(name), booking_notes(note)')
+            .select('*, rooms(name)')
             .order('created_at', { ascending: false })
 
         if (error) throw error
@@ -127,10 +127,11 @@ export const bookingService = {
      * Update internal notes for a booking.
      */
     async updateBookingNotes(bookingId, note) {
-        // We use the booking_notes table for notes
+        // Update the internal_notes column directly on the booking
         const { data, error } = await supabase
-            .from('booking_notes')
-            .upsert({ booking_id: bookingId, note }, { onConflict: 'booking_id' })
+            .from('bookings')
+            .update({ internal_notes: note, updated_at: new Date().toISOString() })
+            .eq('id', bookingId)
             .select()
 
         if (error) throw error
