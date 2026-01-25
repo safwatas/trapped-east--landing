@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Clock, Skull, Calendar, Minus, Plus, AlertCircle } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Users, Clock, Skull, Calendar, Minus, Plus, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -9,18 +9,26 @@ import { Calendar as CalendarComponent } from '../components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { rooms, timeSlots, getPricePerPerson, calculateTotal } from '../data/mock';
-import { format, addDays, isBefore, startOfDay } from 'date-fns';
+import { bookingService } from '../lib/bookingService';
+import { roomAdapter } from '../lib/adapters';
+import { analytics } from '../lib/analytics';
+import { format, isBefore, startOfDay } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
 
 export default function BookingPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const room = rooms.find(r => r.slug === slug);
+  const [searchParams] = useSearchParams();
+
+  const [room, setRoom] = useState(null);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
-  const [playerCount, setPlayerCount] = useState(room?.minPlayers || 2);
-  const [horrorEnabled, setHorrorEnabled] = useState(room?.isHorror || false);
+  const [playerCount, setPlayerCount] = useState(2);
+  const [horrorEnabled, setHorrorEnabled] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -28,8 +36,61 @@ export default function BookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const pricePerPerson = useMemo(() => getPricePerPerson(playerCount), [playerCount]);
-  const totalPrice = useMemo(() => calculateTotal(playerCount), [playerCount]);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const dbRoom = await bookingService.getRoomBySlug(slug);
+        const adaptedRoom = roomAdapter(dbRoom);
+        setRoom(adaptedRoom);
+        setPlayerCount(adaptedRoom.minPlayers);
+        setHorrorEnabled(adaptedRoom.isHorror);
+
+        // Track ViewContent/ViewRoom
+        analytics.track('ViewRoom', {
+          room_id: adaptedRoom.id,
+          room_name: adaptedRoom.name
+        });
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load room details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [slug]);
+
+  useEffect(() => {
+    const loadSlots = async () => {
+      if (!selectedDate || !room) return;
+      try {
+        const booked = await bookingService.getBookedSlots(room.id, format(selectedDate, 'yyyy-MM-dd'));
+        const allSlots = await bookingService.getTimeSlots();
+        const available = allSlots
+          .map(s => s.slot_time)
+          .filter(slot => !booked.includes(slot));
+        setAvailableSlots(available);
+      } catch (err) {
+        console.error("Failed to load availability:", err);
+      }
+    };
+    loadSlots();
+  }, [selectedDate, room]);
+
+  const pricePerPerson = useMemo(() => {
+    if (!room) return 0;
+    return room.pricing?.[playerCount] || room.pricing?.[room.maxPlayers] || 420;
+  }, [room, playerCount]);
+
+  const totalPrice = useMemo(() => pricePerPerson * playerCount, [pricePerPerson, playerCount]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[color:var(--bg-base)] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-[color:var(--brand-accent)] animate-spin" />
+      </div>
+    );
+  }
 
   if (!room) {
     return (
@@ -37,7 +98,7 @@ export default function BookingPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Room not found</h1>
           <Link to="/rooms">
-            <Button>Back to Rooms</Button>
+            <Button className="bg-[color:var(--brand-accent)] text-black">Back to Rooms</Button>
           </Link>
         </div>
       </div>
@@ -72,11 +133,43 @@ export default function BookingPage() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const bookingId = `BK${Date.now()}`;
-      navigate(`/confirmation/${bookingId}`, {
+
+    try {
+      const bookingData = {
+        room_id: room.id,
+        booking_date: format(selectedDate, 'yyyy-MM-dd'),
+        time_slot: selectedTime,
+        player_count: playerCount,
+        horror_mode: horrorEnabled,
+        total_price: totalPrice,
+        price_per_person: pricePerPerson,
+        applied_promo: promoCode || null,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        customer_email: customerEmail || null,
+        status: 'new',
+        utm_source: searchParams.get('utm_source'),
+        utm_medium: searchParams.get('utm_medium'),
+        utm_campaign: searchParams.get('utm_campaign'),
+        utm_adset: searchParams.get('utm_adset'),
+        utm_ad: searchParams.get('utm_ad'),
+        fbclid: searchParams.get('fbclid'),
+        event_id: uuidv4()
+      };
+
+      const result = await bookingService.createBooking(bookingData);
+
+      // Track Lead
+      analytics.track('Lead', {
+        booking_id: result.id,
+        room_name: room.name,
+        value: totalPrice,
+        players: playerCount,
+        event_id: bookingData.event_id
+      });
+
+      toast.success("Booking request submitted!");
+      navigate(`/confirmation/${result.id}`, {
         state: {
           room: room.name,
           date: format(selectedDate, 'PPP'),
@@ -86,7 +179,18 @@ export default function BookingPage() {
           totalPrice
         }
       });
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Failed to submit booking");
+
+      // Auto-refresh availability logic (simple version: stay on page but show error)
+      if (err.message.includes('taken')) {
+        setSelectedTime('');
+        // We could re-fetch slots here if needed
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const disabledDays = (date) => {
@@ -128,9 +232,8 @@ export default function BookingPage() {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className={`w-full justify-start h-12 rounded-xl bg-black/30 border-white/10 text-left font-normal ${
-                          selectedDate ? 'text-white' : 'text-white/35'
-                        } ${errors.date ? 'border-red-500' : ''}`}
+                        className={`w-full justify-start h-12 rounded-xl bg-black/30 border-white/10 text-left font-normal ${selectedDate ? 'text-white' : 'text-white/35'
+                          } ${errors.date ? 'border-red-500' : ''}`}
                       >
                         <Calendar className="mr-2 h-4 w-4" />
                         {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
@@ -153,16 +256,15 @@ export default function BookingPage() {
                 <div className="space-y-2">
                   <Label className="text-white">Select Time Slot *</Label>
                   <div className={`grid grid-cols-2 md:grid-cols-4 gap-2 ${errors.time ? 'ring-1 ring-red-500 rounded-xl p-1' : ''}`}>
-                    {timeSlots.map((slot) => (
+                    {availableSlots.map((slot) => (
                       <button
                         key={slot}
                         type="button"
                         onClick={() => setSelectedTime(slot)}
-                        className={`h-11 rounded-xl border text-sm font-medium transition-all ${
-                          selectedTime === slot
-                            ? 'bg-[color:var(--brand-accent)] text-black border-[color:var(--brand-accent)]'
-                            : 'bg-black/30 text-white border-white/10 hover:border-white/30'
-                        }`}
+                        className={`h-11 rounded-xl border text-sm font-medium transition-all ${selectedTime === slot
+                          ? 'bg-[color:var(--brand-accent)] text-black border-[color:var(--brand-accent)]'
+                          : 'bg-black/30 text-white border-white/10 hover:border-white/30'
+                          }`}
                       >
                         {slot}
                       </button>
@@ -237,7 +339,7 @@ export default function BookingPage() {
                 {/* Customer Details */}
                 <div className="space-y-4 pt-4 border-t border-white/10">
                   <h3 className="font-display font-semibold text-white">Your Details</h3>
-                  
+
                   <div className="space-y-2">
                     <Label className="text-white">Full Name *</Label>
                     <Input
@@ -300,7 +402,7 @@ export default function BookingPage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--bg-surface)] to-transparent" />
                 </div>
-                
+
                 <div className="p-5 space-y-4">
                   <div>
                     <h3 className="font-display text-xl font-bold text-white">{room.name}</h3>

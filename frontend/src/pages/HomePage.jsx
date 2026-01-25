@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Lock, Clock, Users, Zap } from 'lucide-react';
+import { ArrowRight, Lock, Clock, Users, Zap, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import RoomCard from '../components/rooms/RoomCard';
-import { rooms, faqs } from '../data/mock';
+import { bookingService } from '../lib/bookingService';
+import { roomAdapter } from '../lib/adapters';
+import { faqs } from '../data/mock';
 
 const HowItWorksCard = ({ icon: Icon, title, description, step }) => (
   <div className="relative group">
@@ -24,6 +26,23 @@ const HowItWorksCard = ({ icon: Icon, title, description, step }) => (
 );
 
 export default function HomePage() {
+  const [rooms, setRooms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const data = await bookingService.getRooms();
+        setRooms(data.map(roomAdapter));
+      } catch (err) {
+        console.error("Home fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchRooms();
+  }, []);
+
   const featuredRooms = rooms.slice(0, 3);
 
   return (
@@ -35,7 +54,7 @@ export default function HomePage() {
         {/* Background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[color:var(--bg-base)]" />
-          <div 
+          <div
             className="absolute inset-0 opacity-30"
             style={{
               backgroundImage: 'url(https://trappedegypt.com/wp-content/uploads/2022/11/TRAPPED-NEW-CAIRO-ROOMS.jpg.webp)',
@@ -57,7 +76,7 @@ export default function HomePage() {
               <span className="text-[color:var(--brand-accent)]">Get Caught!</span>
             </h1>
             <p className="text-lg md:text-xl text-[color:var(--text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed">
-              Can you solve the puzzles and escape before time runs out? 
+              Can you solve the puzzles and escape before time runs out?
               Test your wits in our immersive themed rooms.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -131,10 +150,16 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
-            {featuredRooms.map((room) => (
-              <RoomCard key={room.id} room={room} />
-            ))}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children min-h-[400px]">
+            {isLoading ? (
+              <div className="col-span-full flex items-center justify-center">
+                <Loader2 className="w-10 h-10 text-[color:var(--brand-accent)] animate-spin" />
+              </div>
+            ) : (
+              featuredRooms.map((room) => (
+                <RoomCard key={room.id} room={room} />
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -173,8 +198,8 @@ export default function HomePage() {
 
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
-              <AccordionItem 
-                key={index} 
+              <AccordionItem
+                key={index}
                 value={`item-${index}`}
                 className="rounded-2xl bg-[color:var(--bg-surface)] border border-white/10 px-6 data-[state=open]:border-[color:var(--brand-accent)]/30"
               >
@@ -197,7 +222,7 @@ export default function HomePage() {
             Ready to Test Your Limits?
           </h2>
           <p className="text-lg text-[color:var(--text-secondary)] mb-10 max-w-2xl mx-auto">
-            Don't worry, all our rooms are family friendly... we think. 
+            Don't worry, all our rooms are family friendly... we think.
             Book your escape room adventure today!
           </p>
           <Link to="/rooms">

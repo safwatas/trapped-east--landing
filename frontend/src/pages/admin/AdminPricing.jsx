@@ -1,47 +1,86 @@
-import React, { useState } from 'react';
-import { Save, Plus, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Save, Plus, Trash2, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { pricing as initialPricing } from '../../data/mock';
+import { bookingService } from '../../lib/bookingService';
 import { toast } from 'sonner';
 
 export default function AdminPricing() {
-  const [pricing, setPricing] = useState(initialPricing);
-  const [promoCodes, setPromoCodes] = useState([
-    { code: 'SUMMER20', discount: 20, type: 'percentage', active: true },
-    { code: 'FIRST50', discount: 50, type: 'fixed', active: true }
-  ]);
-  const [newPromo, setNewPromo] = useState({ code: '', discount: '', type: 'percentage' });
+  const [pricing, setPricing] = useState({ 2: 470, 3: 460, 4: 450, 5: 440, 6: 430, 7: 420, default: 420 });
+  const [promoCodes, setPromoCodes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [newPromo, setNewPromo] = useState({ code: '', discount_value: '', discount_type: 'percentage' });
+
+  const fetchPromos = async () => {
+    setIsLoading(true);
+    try {
+      const data = await bookingService.getAllPromoCodes();
+      setPromoCodes(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load promo codes");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPromos();
+  }, []);
 
   const handlePriceChange = (players, value) => {
     setPricing(prev => ({ ...prev, [players]: parseInt(value) || 0 }));
   };
 
   const handleSavePricing = () => {
-    toast.success('Pricing updated successfully');
+    toast.success('Pricing updated successfully (UI simulation for now)');
   };
 
-  const handleAddPromo = () => {
-    if (!newPromo.code || !newPromo.discount) {
+  const handleAddPromo = async () => {
+    if (!newPromo.code || !newPromo.discount_value) {
       toast.error('Please fill in all fields');
       return;
     }
-    setPromoCodes(prev => [...prev, { ...newPromo, discount: parseInt(newPromo.discount), active: true }]);
-    setNewPromo({ code: '', discount: '', type: 'percentage' });
-    toast.success('Promo code added');
+    try {
+      const dbPromo = {
+        code: newPromo.code,
+        discount_value: parseInt(newPromo.discount_value),
+        discount_type: newPromo.discount_type,
+        active: true
+      };
+      await bookingService.upsertPromoCode(dbPromo);
+      toast.success('Promo code added');
+      setNewPromo({ code: '', discount_value: '', discount_type: 'percentage' });
+      fetchPromos();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add promo code");
+    }
   };
 
-  const handleTogglePromo = (code) => {
-    setPromoCodes(prev => prev.map(p => 
-      p.code === code ? { ...p, active: !p.active } : p
-    ));
+  const handleTogglePromo = async (promo) => {
+    try {
+      await bookingService.upsertPromoCode({ ...promo, active: !promo.active });
+      setPromoCodes(prev => prev.map(p =>
+        p.id === promo.id ? { ...p, active: !promo.active } : p
+      ));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update promo");
+    }
   };
 
-  const handleDeletePromo = (code) => {
-    setPromoCodes(prev => prev.filter(p => p.code !== code));
-    toast.success('Promo code deleted');
+  const handleDeletePromo = async (id) => {
+    try {
+      await bookingService.deletePromoCode(id);
+      setPromoCodes(prev => prev.filter(p => p.id !== id));
+      toast.success('Promo code deleted');
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete promo code");
+    }
   };
 
   return (
@@ -145,8 +184,8 @@ export default function AdminPricing() {
                 <Label className="text-[color:var(--text-muted)]">Discount</Label>
                 <Input
                   type="number"
-                  value={newPromo.discount}
-                  onChange={(e) => setNewPromo({ ...newPromo, discount: e.target.value })}
+                  value={newPromo.discount_value}
+                  onChange={(e) => setNewPromo({ ...newPromo, discount_value: e.target.value })}
                   placeholder="20"
                   className="bg-black/30 border-white/10 text-white"
                 />
@@ -154,8 +193,8 @@ export default function AdminPricing() {
               <div className="space-y-2">
                 <Label className="text-[color:var(--text-muted)]">Type</Label>
                 <select
-                  value={newPromo.type}
-                  onChange={(e) => setNewPromo({ ...newPromo, type: e.target.value })}
+                  value={newPromo.discount_type}
+                  onChange={(e) => setNewPromo({ ...newPromo, discount_type: e.target.value })}
                   className="w-full h-10 px-3 rounded-xl bg-black/30 border border-white/10 text-white"
                 >
                   <option value="percentage">Percentage (%)</option>
@@ -173,43 +212,48 @@ export default function AdminPricing() {
 
           {/* Existing Promos */}
           <div className="space-y-3">
-            {promoCodes.map((promo) => (
-              <div 
-                key={promo.code}
-                className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
-                  promo.active 
-                    ? 'bg-green-500/5 border-green-500/20' 
-                    : 'bg-black/20 border-white/10 opacity-60'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="font-mono font-bold text-white">{promo.code}</p>
-                    <p className="text-sm text-[color:var(--text-muted)]">
-                      {promo.discount}{promo.type === 'percentage' ? '%' : ' EGP'} off
-                    </p>
+            {isLoading ? (
+              <div className="flex justify-center p-4">
+                <Loader2 className="w-6 h-6 text-[color:var(--brand-accent)] animate-spin" />
+              </div>
+            ) : (
+              promoCodes.map((promo) => (
+                <div
+                  key={promo.id}
+                  className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${promo.active
+                      ? 'bg-green-500/5 border-green-500/20'
+                      : 'bg-black/20 border-white/10 opacity-60'
+                    }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="font-mono font-bold text-white">{promo.code}</p>
+                      <p className="text-sm text-[color:var(--text-muted)]">
+                        {promo.discount_value}{promo.discount_type === 'percentage' ? '%' : ' EGP'} off
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleTogglePromo(promo)}
+                      className={promo.active ? 'text-green-400' : 'text-[color:var(--text-muted)]'}
+                    >
+                      {promo.active ? 'Active' : 'Inactive'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeletePromo(promo.id)}
+                      className="text-red-400 hover:bg-red-500/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleTogglePromo(promo.code)}
-                    className={promo.active ? 'text-green-400' : 'text-[color:var(--text-muted)]'}
-                  >
-                    {promo.active ? 'Active' : 'Inactive'}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeletePromo(promo.code)}
-                    className="text-red-400 hover:bg-red-500/10"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

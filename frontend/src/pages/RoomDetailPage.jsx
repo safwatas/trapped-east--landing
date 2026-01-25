@@ -1,20 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Users, Clock, Puzzle, Skull, Star, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Users, Clock, Puzzle, Skull, Star, AlertTriangle, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { rooms, getPricePerPerson } from '../data/mock';
+import { bookingService } from '../lib/bookingService';
+import { roomAdapter } from '../lib/adapters';
+import { analytics } from '../lib/analytics';
+import { toast } from 'sonner';
 
 export default function RoomDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  
-  const room = rooms.find(r => r.slug === slug);
+
+  const [room, setRoom] = useState(null);
+  const [rooms, setRooms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [dbRoom, dbRooms] = await Promise.all([
+          bookingService.getRoomBySlug(slug),
+          bookingService.getRooms()
+        ]);
+        setRoom(roomAdapter(dbRoom));
+        setRooms(dbRooms.map(roomAdapter));
+
+        // Track ViewContent/ViewRoom
+        analytics.track('ViewRoom', {
+          room_id: dbRoom.id,
+          room_name: dbRoom.name
+        });
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load room details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [slug]);
+
   const currentIndex = rooms.findIndex(r => r.slug === slug);
   const prevRoom = currentIndex > 0 ? rooms[currentIndex - 1] : null;
   const nextRoom = currentIndex < rooms.length - 1 ? rooms[currentIndex + 1] : null;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[color:var(--bg-base)] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-[color:var(--brand-accent)] animate-spin" />
+      </div>
+    );
+  }
 
   if (!room) {
     return (
@@ -22,7 +61,7 @@ export default function RoomDetailPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">Room not found</h1>
           <Link to="/rooms">
-            <Button>Back to Rooms</Button>
+            <Button className="bg-[color:var(--brand-accent)] text-black">Back to Rooms</Button>
           </Link>
         </div>
       </div>
@@ -37,8 +76,8 @@ export default function RoomDetailPage() {
     'Expert': 'text-red-500 bg-red-500/10 border-red-500/30'
   };
 
-  const minPrice = getPricePerPerson(room.maxPlayers);
-  const maxPrice = getPricePerPerson(room.minPlayers);
+  const minPrice = room.pricing?.[room.maxPlayers] || 420;
+  const maxPrice = room.pricing?.[room.minPlayers] || 470;
 
   return (
     <div className="min-h-screen bg-[color:var(--bg-base)]">
@@ -64,7 +103,7 @@ export default function RoomDetailPage() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              
+
               {/* Rating */}
               <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5">
                 {[...Array(room.rating)].map((_, i) => (
@@ -155,7 +194,7 @@ export default function RoomDetailPage() {
               </div>
 
               {/* CTA */}
-              <Button 
+              <Button
                 onClick={() => navigate(`/book/${room.slug}`)}
                 className="w-full bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 rounded-xl text-lg"
               >
@@ -172,7 +211,7 @@ export default function RoomDetailPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between">
             {prevRoom ? (
-              <Link 
+              <Link
                 to={`/rooms/${prevRoom.slug}`}
                 className="flex items-center gap-3 text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
               >
@@ -183,9 +222,9 @@ export default function RoomDetailPage() {
                 </div>
               </Link>
             ) : <div />}
-            
+
             {nextRoom ? (
-              <Link 
+              <Link
                 to={`/rooms/${nextRoom.slug}`}
                 className="flex items-center gap-3 text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
               >

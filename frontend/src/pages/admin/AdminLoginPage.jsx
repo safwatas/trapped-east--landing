@@ -6,9 +6,11 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { toast } from 'sonner';
 
+import { supabase } from '../../lib/supabase';
+
 export default function AdminLoginPage() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,17 +19,27 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simple mock authentication
-    setTimeout(() => {
-      if (username === 'admin' && password === 'trapped2024') {
-        localStorage.setItem('adminAuth', 'true');
-        toast.success('Welcome back!');
-        navigate('/admin/dashboard');
-      } else {
-        toast.error('Invalid credentials');
-      }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      // Check if user is admin (optional: verify via custom claim or table)
+      // For now, we assume if they can login to admin page, it's fine, 
+      // but RLS will protect the data.
+
+      localStorage.setItem('adminAuth', 'true'); // Keep this for now to maintain AdminLayout logic
+      toast.success('Welcome back!');
+      navigate('/admin/dashboard');
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Invalid credentials');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -43,11 +55,12 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label className="text-white">Username</Label>
+            <Label className="text-white">Email Address</Label>
             <Input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@trappedegypt.com"
               required
               className="h-12 rounded-xl bg-black/30 border-white/10 text-white placeholder:text-white/35"
             />
@@ -84,7 +97,7 @@ export default function AdminLoginPage() {
         </form>
 
         <p className="text-center text-xs text-[color:var(--text-muted)] mt-6">
-          Demo: admin / trapped2024
+          Use your Supabase account to sign in
         </p>
       </div>
     </div>

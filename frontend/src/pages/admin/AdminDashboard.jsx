@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, DoorOpen, Users, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Calendar, DoorOpen, Users, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { mockBookings, rooms } from '../../data/mock';
+import { bookingService } from '../../lib/bookingService';
+import { bookingAdapter, roomAdapter } from '../../lib/adapters';
 
 const StatCard = ({ title, value, icon: Icon, color, change }) => (
   <Card className="bg-[color:var(--bg-surface)] border-white/10">
@@ -26,11 +27,41 @@ const StatCard = ({ title, value, icon: Icon, color, change }) => (
 );
 
 export default function AdminDashboard() {
-  const pendingBookings = mockBookings.filter(b => b.status === 'pending').length;
-  const confirmedBookings = mockBookings.filter(b => b.status === 'confirmed').length;
+  const [bookings, setBookings] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [dbBookings, dbRooms] = await Promise.all([
+          bookingService.getAllBookings(),
+          bookingService.getRooms()
+        ]);
+        setBookings(dbBookings.map(bookingAdapter));
+        setRooms(dbRooms.map(roomAdapter));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const pendingBookings = bookings.filter(b => b.status === 'pending' || b.status === 'new').length;
+  const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <Loader2 className="w-10 h-10 text-[color:var(--brand-accent)] animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 StaggerChildren">
       <div>
         <h1 className="font-display text-3xl font-bold text-white">Dashboard</h1>
         <p className="text-[color:var(--text-muted)] mt-1">Welcome back! Here's what's happening.</p>
@@ -38,27 +69,26 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard 
-          title="Total Bookings" 
-          value={mockBookings.length}
+        <StatCard
+          title="Total Bookings"
+          value={bookings.length}
           icon={Calendar}
           color="bg-[color:var(--brand-accent)]/10 text-[color:var(--brand-accent)]"
-          change={12}
         />
-        <StatCard 
-          title="Pending" 
+        <StatCard
+          title="Pending/New"
           value={pendingBookings}
           icon={Clock}
           color="bg-orange-500/10 text-orange-400"
         />
-        <StatCard 
-          title="Confirmed" 
+        <StatCard
+          title="Confirmed"
           value={confirmedBookings}
           icon={CheckCircle}
           color="bg-green-500/10 text-green-400"
         />
-        <StatCard 
-          title="Active Rooms" 
+        <StatCard
+          title="Active Rooms"
           value={rooms.length}
           icon={DoorOpen}
           color="bg-blue-500/10 text-blue-400"
@@ -75,19 +105,18 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockBookings.slice(0, 5).map((booking) => (
-              <div 
+            {bookings.slice(0, 5).map((booking) => (
+              <div
                 key={booking.id}
                 className="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/5"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    booking.status === 'confirmed' ? 'bg-green-500/10' :
-                    booking.status === 'pending' ? 'bg-orange-500/10' : 'bg-red-500/10'
-                  }`}>
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${booking.status === 'confirmed' ? 'bg-green-500/10' :
+                      (booking.status === 'pending' || booking.status === 'new') ? 'bg-orange-500/10' : 'bg-red-500/10'
+                    }`}>
                     {booking.status === 'confirmed' ? <CheckCircle className="w-5 h-5 text-green-400" /> :
-                     booking.status === 'pending' ? <Clock className="w-5 h-5 text-orange-400" /> :
-                     <XCircle className="w-5 h-5 text-red-400" />}
+                      (booking.status === 'pending' || booking.status === 'new') ? <Clock className="w-5 h-5 text-orange-400" /> :
+                        <XCircle className="w-5 h-5 text-red-400" />}
                   </div>
                   <div>
                     <p className="font-medium text-white">{booking.customerName}</p>
@@ -113,21 +142,21 @@ export default function AdminDashboard() {
             <CardTitle className="text-white">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Link 
+            <Link
               to="/admin/bookings"
               className="flex items-center gap-3 p-3 rounded-xl bg-black/20 hover:bg-black/30 transition-colors"
             >
               <Calendar className="w-5 h-5 text-[color:var(--brand-accent)]" />
               <span className="text-white">Manage Bookings</span>
             </Link>
-            <Link 
+            <Link
               to="/admin/rooms"
               className="flex items-center gap-3 p-3 rounded-xl bg-black/20 hover:bg-black/30 transition-colors"
             >
               <DoorOpen className="w-5 h-5 text-[color:var(--brand-accent)]" />
               <span className="text-white">Edit Rooms</span>
             </Link>
-            <Link 
+            <Link
               to="/admin/pricing"
               className="flex items-center gap-3 p-3 rounded-xl bg-black/20 hover:bg-black/30 transition-colors"
             >
@@ -147,8 +176,8 @@ export default function AdminDashboard() {
                 <span className="text-[color:var(--text-secondary)]">{room.name}</span>
                 <div className="flex items-center gap-2">
                   <div className="w-24 h-2 rounded-full bg-white/10 overflow-hidden">
-                    <div 
-                      className="h-full bg-[color:var(--brand-accent)] rounded-full" 
+                    <div
+                      className="h-full bg-[color:var(--brand-accent)] rounded-full"
                       style={{ width: `${Math.random() * 60 + 40}%` }}
                     />
                   </div>

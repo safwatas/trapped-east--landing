@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Edit, Save, X, Users, Clock, Puzzle, Skull } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Edit, Save, X, Users, Clock, Puzzle, Skull, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -9,26 +9,68 @@ import { Switch } from '../../components/ui/switch';
 import { Badge } from '../../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
-import { rooms as initialRooms } from '../../data/mock';
+import { bookingService } from '../../lib/bookingService';
+import { roomAdapter } from '../../lib/adapters';
 import { toast } from 'sonner';
 
 export default function AdminRooms() {
-  const [rooms, setRooms] = useState(initialRooms);
+  const [rooms, setRooms] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editingRoom, setEditingRoom] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const fetchRooms = async () => {
+    setIsLoading(true);
+    try {
+      const data = await bookingService.getRooms();
+      setRooms(data.map(roomAdapter));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load rooms");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRooms();
+  }, []);
 
   const handleEdit = (room) => {
     setEditingRoom({ ...room });
     setIsDialogOpen(true);
   };
 
-  const handleSave = () => {
-    setRooms(prev => prev.map(r => 
-      r.id === editingRoom.id ? editingRoom : r
-    ));
-    toast.success('Room updated successfully');
-    setIsDialogOpen(false);
-    setEditingRoom(null);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const updateData = {
+        name: editingRoom.name,
+        tagline: editingRoom.tagline,
+        description: editingRoom.description,
+        min_players: editingRoom.minPlayers,
+        max_players: editingRoom.maxPlayers,
+        duration: editingRoom.duration,
+        difficulty: editingRoom.difficulty,
+        is_horror: editingRoom.isHorror,
+        horror_toggleable: editingRoom.horrorToggleable
+      };
+
+      await bookingService.updateRoom(editingRoom.id, updateData);
+
+      setRooms(prev => prev.map(r =>
+        r.id === editingRoom.id ? editingRoom : r
+      ));
+      toast.success('Room updated successfully');
+      setIsDialogOpen(false);
+      setEditingRoom(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update room");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const difficultyOptions = ['Easy', 'Medium', 'Hard', 'Very Hard', 'Expert'];
@@ -42,54 +84,60 @@ export default function AdminRooms() {
 
       {/* Rooms Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {rooms.map((room) => (
-          <Card key={room.id} className="bg-[color:var(--bg-surface)] border-white/10 overflow-hidden">
-            <div className="aspect-video relative">
-              <img
-                src={room.image}
-                alt={room.name}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-              <div className="absolute bottom-3 left-3 right-3">
-                <h3 className="font-display text-lg font-bold text-white">{room.name}</h3>
+        {isLoading ? (
+          <div className="col-span-full flex items-center justify-center p-12">
+            <Loader2 className="w-8 h-8 text-[color:var(--brand-accent)] animate-spin" />
+          </div>
+        ) : (
+          rooms.map((room) => (
+            <Card key={room.id} className="bg-[color:var(--bg-surface)] border-white/10 overflow-hidden">
+              <div className="aspect-video relative">
+                <img
+                  src={room.image}
+                  alt={room.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                <div className="absolute bottom-3 left-3 right-3">
+                  <h3 className="font-display text-lg font-bold text-white">{room.name}</h3>
+                </div>
               </div>
-            </div>
-            <CardContent className="p-4 space-y-3">
-              <div className="flex flex-wrap gap-2">
-                <Badge className="bg-white/10 border-white/20 text-white">
-                  <Users className="w-3 h-3 mr-1" />
-                  {room.minPlayers}-{room.maxPlayers}
-                </Badge>
-                <Badge className="bg-white/10 border-white/20 text-white">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {room.duration}min
-                </Badge>
-                <Badge className="bg-white/10 border-white/20 text-white">
-                  <Puzzle className="w-3 h-3 mr-1" />
-                  {room.difficulty}
-                </Badge>
-                {room.isHorror && (
-                  <Badge className="bg-red-500/10 border-red-500/30 text-red-400">
-                    <Skull className="w-3 h-3 mr-1" />
-                    Horror
+              <CardContent className="p-4 space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-white/10 border-white/20 text-white">
+                    <Users className="w-3 h-3 mr-1" />
+                    {room.minPlayers}-{room.maxPlayers}
                   </Badge>
-                )}
-              </div>
-              <p className="text-sm text-[color:var(--text-muted)] line-clamp-2">
-                {room.description}
-              </p>
-              <Button 
-                onClick={() => handleEdit(room)}
-                variant="outline" 
-                className="w-full border-white/15 text-white hover:border-[color:var(--brand-accent)] hover:text-[color:var(--brand-accent)]"
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit Room
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+                  <Badge className="bg-white/10 border-white/20 text-white">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {room.duration}min
+                  </Badge>
+                  <Badge className="bg-white/10 border-white/20 text-white">
+                    <Puzzle className="w-3 h-3 mr-1" />
+                    {room.difficulty}
+                  </Badge>
+                  {room.isHorror && (
+                    <Badge className="bg-red-500/10 border-red-500/30 text-red-400">
+                      <Skull className="w-3 h-3 mr-1" />
+                      Horror
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-[color:var(--text-muted)] line-clamp-2">
+                  {room.description}
+                </p>
+                <Button
+                  onClick={() => handleEdit(room)}
+                  variant="outline"
+                  className="w-full border-white/15 text-white hover:border-[color:var(--brand-accent)] hover:text-[color:var(--brand-accent)]"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Room
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       {/* Edit Dialog */}
@@ -161,8 +209,8 @@ export default function AdminRooms() {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-white">Difficulty</Label>
-                  <Select 
-                    value={editingRoom.difficulty} 
+                  <Select
+                    value={editingRoom.difficulty}
                     onValueChange={(value) => setEditingRoom({ ...editingRoom, difficulty: value })}
                   >
                     <SelectTrigger className="bg-black/30 border-white/10 text-white">
