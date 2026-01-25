@@ -15,6 +15,7 @@ import {
 import { Button } from '../../components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../../components/ui/sheet';
 import { supabase } from '../../lib/supabase';
+import { siteConfig } from '../../config/site';
 
 const navItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
@@ -81,8 +82,8 @@ export default function AdminLayout() {
       <div className="p-6 border-b border-white/10">
         <Link to="/" className="flex items-center gap-2">
           <img
-            src="https://customer-assets.emergentagent.com/job_e4dc0a10-5155-45bf-be9d-ca5350deb9d2/artifacts/x3eqytrr_TRAPPED-logo-Final-NEW-transparent-2-1-.jpg"
-            alt="Trapped"
+            src={siteConfig.logo}
+            alt={siteConfig.logoAlt}
             className="h-8 w-auto"
           />
         </Link>
@@ -100,8 +101,8 @@ export default function AdminLayout() {
               to={item.path}
               onClick={() => mobile && setIsMobileOpen(false)}
               className={`flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors ${isActive
-                  ? 'text-[color:var(--brand-accent)] bg-[color:var(--brand-accent)]/10 border-r-2 border-[color:var(--brand-accent)]'
-                  : 'text-[color:var(--text-muted)] hover:text-white hover:bg-white/5'
+                ? 'text-[color:var(--brand-accent)] bg-[color:var(--brand-accent)]/10 border-r-2 border-[color:var(--brand-accent)]'
+                : 'text-[color:var(--text-muted)] hover:text-white hover:bg-white/5'
                 }`}
             >
               <Icon className="w-5 h-5" />
@@ -138,8 +139,8 @@ export default function AdminLayout() {
         <header className="lg:hidden sticky top-0 z-40 h-16 bg-[color:var(--bg-surface)] border-b border-white/10 flex items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2">
             <img
-              src="https://customer-assets.emergentagent.com/job_e4dc0a10-5155-45bf-be9d-ca5350deb9d2/artifacts/x3eqytrr_TRAPPED-logo-Final-NEW-transparent-2-1-.jpg"
-              alt="Trapped"
+              src={siteConfig.logo}
+              alt={siteConfig.logoAlt}
               className="h-8 w-auto"
             />
           </Link>

@@ -3,12 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Phone } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { siteConfig, getPhoneLink } from '../../config/site';
 
 const Logo = () => (
   <Link to="/" className="flex items-center gap-2">
     <img
-      src="https://customer-assets.emergentagent.com/job_e4dc0a10-5155-45bf-be9d-ca5350deb9d2/artifacts/x3eqytrr_TRAPPED-logo-Final-NEW-transparent-2-1-.jpg"
-      alt="Trapped Egypt"
+      src={siteConfig.logo}
+      alt={siteConfig.logoAlt}
       className="h-10 w-auto"
     />
   </Link>
@@ -37,8 +38,8 @@ export default function Navbar() {
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled
-          ? 'h-14 bg-black/80 backdrop-blur-lg border-b border-white/10'
-          : 'h-16 bg-transparent'
+        ? 'h-14 bg-black/80 backdrop-blur-lg border-b border-white/10'
+        : 'h-16 bg-transparent'
         }`}
     >
       <nav className="max-w-6xl mx-auto px-4 md:px-8 h-full flex items-center justify-between">
@@ -51,8 +52,8 @@ export default function Navbar() {
               key={link.path}
               to={link.path}
               className={`text-sm font-medium transition-colors hover:text-[color:var(--brand-accent)] ${location.pathname === link.path
-                  ? 'text-[color:var(--brand-accent)]'
-                  : 'text-[color:var(--text-secondary)]'
+                ? 'text-[color:var(--brand-accent)]'
+                : 'text-[color:var(--text-secondary)]'
                 }`}
             >
               {link.name}
@@ -63,11 +64,11 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-4">
           <a
-            href="tel:+201028885599"
+            href={getPhoneLink()}
             className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors"
           >
             <Phone className="w-4 h-4" />
-            <span>+20 10 288 855 99</span>
+            <span>{siteConfig.phoneDisplay}</span>
           </a>
           <Link to="/rooms">
             <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold px-5 h-10 rounded-xl">
@@ -99,8 +100,8 @@ export default function Navbar() {
                     to={link.path}
                     onClick={() => setIsOpen(false)}
                     className={`block px-6 py-3 text-lg font-medium transition-colors hover:bg-white/5 ${location.pathname === link.path
-                        ? 'text-[color:var(--brand-accent)] border-l-2 border-[color:var(--brand-accent)]'
-                        : 'text-[color:var(--text-secondary)]'
+                      ? 'text-[color:var(--brand-accent)] border-l-2 border-[color:var(--brand-accent)]'
+                      : 'text-[color:var(--text-secondary)]'
                       }`}
                   >
                     {link.name}
@@ -110,11 +111,11 @@ export default function Navbar() {
 
               <div className="p-6 border-t border-white/10 space-y-4">
                 <a
-                  href="tel:+201200004434"
+                  href={getPhoneLink()}
                   className="flex items-center gap-2 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors"
                 >
                   <Phone className="w-5 h-5" />
-                  <span>+20 120 000 4434</span>
+                  <span>{siteConfig.phoneDisplay}</span>
                 </a>
                 <Link to="/rooms" onClick={() => setIsOpen(false)} className="block">
                   <Button className="w-full bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-12 rounded-xl">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Facebook, Instagram, MessageCircle } from 'lucide-react';
-import { branchInfo } from '../../data/mock';
+import { siteConfig, getPhoneLink, getWhatsAppLink, getEmailLink } from '../../config/site';
 
 export default function Footer() {
   return (
@@ -11,14 +11,14 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="inline-block">
-              <img 
-                src="https://customer-assets.emergentagent.com/job_e4dc0a10-5155-45bf-be9d-ca5350deb9d2/artifacts/x3eqytrr_TRAPPED-logo-Final-NEW-transparent-2-1-.jpg" 
-                alt="Trapped Egypt" 
+              <img
+                src={siteConfig.logo}
+                alt={siteConfig.logoAlt}
                 className="h-12 w-auto"
               />
             </Link>
             <p className="text-sm text-[color:var(--text-muted)] leading-relaxed">
-              Egypt's #1 Escape Room Experience. Can you escape before time runs out?
+              {siteConfig.description}
             </p>
           </div>
 
@@ -49,17 +49,17 @@ export default function Footer() {
             <h4 className="font-display font-semibold text-[color:var(--text-primary)] mb-4">Contact</h4>
             <ul className="space-y-3">
               <li>
-                <a 
-                  href={`tel:${branchInfo.phone}`} 
+                <a
+                  href={getPhoneLink()}
                   className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
                 >
                   <Phone className="w-4 h-4" />
-                  {branchInfo.phone}
+                  {siteConfig.phoneDisplay}
                 </a>
               </li>
               <li>
-                <a 
-                  href={`https://wa.me/${branchInfo.whatsapp.replace('+', '')}`}
+                <a
+                  href={getWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
@@ -69,18 +69,18 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a 
-                  href={`mailto:${branchInfo.email}`}
+                <a
+                  href={getEmailLink()}
                   className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
                 >
                   <Mail className="w-4 h-4" />
-                  {branchInfo.email}
+                  {siteConfig.email}
                 </a>
               </li>
               <li>
                 <span className="flex items-start gap-2 text-sm text-[color:var(--text-muted)]">
                   <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  {branchInfo.address}
+                  {siteConfig.address}
                 </span>
               </li>
             </ul>
@@ -92,30 +92,30 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-[color:var(--text-muted)]">
               <li className="flex justify-between">
                 <span>Every Day</span>
-                <span className="text-[color:var(--text-secondary)]">{branchInfo.openingHours.weekdays}</span>
+                <span className="text-[color:var(--text-secondary)]">{siteConfig.openingHours.everyday}</span>
               </li>
             </ul>
-            
+
             {/* Social Links */}
             <div className="mt-6 flex items-center gap-4">
-              <a 
-                href={branchInfo.facebook}
+              <a
+                href={siteConfig.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] hover:border-[color:var(--brand-accent)]/40 transition-all"
               >
                 <Facebook className="w-5 h-5" />
               </a>
-              <a 
-                href={branchInfo.instagram}
+              <a
+                href={siteConfig.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] hover:border-[color:var(--brand-accent)]/40 transition-all"
               >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a 
-                href={`https://wa.me/${branchInfo.whatsapp.replace('+', '')}`}
+              <a
+                href={getWhatsAppLink()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] hover:border-[color:var(--brand-accent)]/40 transition-all"
@@ -129,10 +129,10 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-[color:var(--text-muted)]">
-            © {new Date().getFullYear()} Trapped Egypt. All rights reserved.
+            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
           <p className="text-sm text-[color:var(--text-muted)]">
-            New Cairo Branch - Fifth Settlement
+            {siteConfig.addressShort}
           </p>
         </div>
       </div>

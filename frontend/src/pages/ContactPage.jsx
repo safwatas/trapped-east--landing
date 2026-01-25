@@ -6,7 +6,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { branchInfo } from '../data/mock';
+import { siteConfig, getPhoneLink, getWhatsAppLink, getEmailLink } from '../config/site';
 import { toast } from 'sonner';
 
 export default function ContactPage() {
@@ -21,7 +21,7 @@ export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       toast.success('Message sent successfully! We\'ll get back to you soon.');
@@ -54,10 +54,10 @@ export default function ContactPage() {
             {/* Contact Options */}
             <div className="space-y-6">
               <h2 className="font-display text-2xl font-semibold text-white">Direct Contact</h2>
-              
+
               {/* Phone */}
-              <a 
-                href={`tel:${branchInfo.phone}`}
+              <a
+                href={getPhoneLink()}
                 className="flex items-center gap-4 p-6 rounded-2xl bg-[color:var(--bg-surface)] border border-white/10 hover:border-[color:var(--brand-accent)]/30 transition-all group"
               >
                 <div className="w-14 h-14 rounded-xl bg-[color:var(--brand-accent)]/10 flex items-center justify-center group-hover:bg-[color:var(--brand-accent)]/20 transition-colors">
@@ -65,13 +65,13 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm text-[color:var(--text-muted)] mb-1">Call Us</p>
-                  <p className="font-display text-lg font-semibold text-white">{branchInfo.phone}</p>
+                  <p className="font-display text-lg font-semibold text-white">{siteConfig.phoneDisplay}</p>
                 </div>
               </a>
 
               {/* WhatsApp */}
-              <a 
-                href={`https://wa.me/${branchInfo.whatsapp.replace('+', '')}`}
+              <a
+                href={getWhatsAppLink()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-4 p-6 rounded-2xl bg-[color:var(--bg-surface)] border border-white/10 hover:border-green-500/30 transition-all group"
@@ -86,8 +86,8 @@ export default function ContactPage() {
               </a>
 
               {/* Email */}
-              <a 
-                href={`mailto:${branchInfo.email}`}
+              <a
+                href={getEmailLink()}
                 className="flex items-center gap-4 p-6 rounded-2xl bg-[color:var(--bg-surface)] border border-white/10 hover:border-blue-500/30 transition-all group"
               >
                 <div className="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
@@ -95,7 +95,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm text-[color:var(--text-muted)] mb-1">Email</p>
-                  <p className="font-display text-lg font-semibold text-white">{branchInfo.email}</p>
+                  <p className="font-display text-lg font-semibold text-white">{siteConfig.email}</p>
                 </div>
               </a>
 
@@ -110,7 +110,7 @@ export default function ContactPage() {
             {/* Contact Form */}
             <div>
               <h2 className="font-display text-2xl font-semibold text-white mb-6">Send a Message</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
                   <Label className="text-white">Name *</Label>

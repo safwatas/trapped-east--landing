@@ -3,7 +3,7 @@ import { Phone, MessageCircle, Mail, MapPin, Clock, Facebook, Instagram } from '
 import { Button } from '../components/ui/button';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { branchInfo } from '../data/mock';
+import { siteConfig, getPhoneLink, getWhatsAppLink } from '../config/site';
 
 export default function FindUsPage() {
   return (
@@ -30,7 +30,7 @@ export default function FindUsPage() {
             {/* Map */}
             <div className="rounded-2xl overflow-hidden bg-[color:var(--bg-surface)] border border-white/10 aspect-square lg:aspect-auto lg:h-full min-h-[400px]">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3454.2724865726847!2d31.4!3d30.03!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAxJzQ4LjAiTiAzMcKwMjQnMDAuMCJF!5e0!3m2!1sen!2seg!4v1234567890"
+                src={siteConfig.googleMapsEmbed}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -52,10 +52,10 @@ export default function FindUsPage() {
                   <div>
                     <h3 className="font-display font-semibold text-white mb-2">Address</h3>
                     <p className="text-[color:var(--text-secondary)]">
-                      Fifth Settlement, New Cairo, Egypt
+                      {siteConfig.address}
                     </p>
-                    <a 
-                      href={branchInfo.mapUrl}
+                    <a
+                      href={siteConfig.googleMapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-block mt-3 text-sm text-[color:var(--brand-accent)] hover:underline"
@@ -77,11 +77,11 @@ export default function FindUsPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-[color:var(--text-muted)]">Every Day</span>
-                        <span className="text-[color:var(--text-secondary)]">{branchInfo.openingHours.weekdays}</span>
+                        <span className="text-[color:var(--text-secondary)]">{siteConfig.openingHours.everyday}</span>
                       </div>
                     </div>
                     <p className="mt-4 text-xs text-[color:var(--text-muted)]">
-                      * Last booking slot at 1:30 AM
+                      * Last booking slot at {siteConfig.openingHours.lastSlot}
                     </p>
                   </div>
                 </div>
@@ -91,13 +91,13 @@ export default function FindUsPage() {
               <div className="p-6 rounded-2xl bg-[color:var(--bg-surface)] border border-white/10">
                 <h3 className="font-display font-semibold text-white mb-4">Quick Contact</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <a href={`tel:${branchInfo.phone}`}>
+                  <a href={getPhoneLink()}>
                     <Button variant="outline" className="w-full bg-transparent border-white/15 text-white hover:border-[color:var(--brand-accent)] hover:text-[color:var(--brand-accent)] h-12 rounded-xl">
                       <Phone className="w-4 h-4 mr-2" />
                       Call
                     </Button>
                   </a>
-                  <a href={`https://wa.me/${branchInfo.whatsapp.replace('+', '')}`} target="_blank" rel="noopener noreferrer">
+                  <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" className="w-full bg-transparent border-white/15 text-white hover:border-green-500 hover:text-green-400 h-12 rounded-xl">
                       <MessageCircle className="w-4 h-4 mr-2" />
                       WhatsApp
@@ -110,16 +110,16 @@ export default function FindUsPage() {
               <div className="p-6 rounded-2xl bg-[color:var(--bg-surface)] border border-white/10">
                 <h3 className="font-display font-semibold text-white mb-4">Follow Us</h3>
                 <div className="flex gap-3">
-                  <a 
-                    href={branchInfo.facebook}
+                  <a
+                    href={siteConfig.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] hover:border-[color:var(--brand-accent)]/40 transition-all"
                   >
                     <Facebook className="w-5 h-5" />
                   </a>
-                  <a 
-                    href={branchInfo.instagram}
+                  <a
+                    href={siteConfig.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] hover:border-[color:var(--brand-accent)]/40 transition-all"
