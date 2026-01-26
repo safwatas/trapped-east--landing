@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Lock, Clock, Users, Zap, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import RoomCard from '../components/rooms/RoomCard';
+import HeroBackgroundCarousel from '../components/hero/HeroBackgroundCarousel';
 import { bookingService } from '../lib/bookingService';
 import { roomAdapter } from '../lib/adapters';
 import { faqs } from '../data/mock';
@@ -43,6 +44,11 @@ export default function HomePage() {
     fetchRooms();
   }, []);
 
+  // Extract room images for hero carousel
+  const roomImages = useMemo(() => {
+    return rooms.map(room => room.image).filter(Boolean);
+  }, [rooms]);
+
   const featuredRooms = rooms.slice(0, 3);
 
   return (
@@ -51,22 +57,11 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[color:var(--bg-base)]" />
-          <div
-            className="absolute inset-0 opacity-30"
-            style={{
-              backgroundImage: 'url(https://trappedegypt.com/wp-content/uploads/2022/11/TRAPPED-NEW-CAIRO-ROOMS.jpg.webp)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'grayscale(30%)'
-            }}
-          />
-        </div>
+        {/* Background Carousel */}
+        <HeroBackgroundCarousel roomImages={roomImages} />
 
         {/* Content */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 text-center py-20">
+        <div className="relative z-30 max-w-6xl mx-auto px-4 md:px-8 text-center py-20">
           <div className="animate-slideUp">
             <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--brand-accent)] mb-6 font-medium">
               Egypt's #1 Escape Room Experience
@@ -96,7 +91,7 @@ export default function HomePage() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-30">
           <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
             <div className="w-1.5 h-3 rounded-full bg-white/50" />
           </div>
