@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Clock, Puzzle, Skull, Star } from 'lucide-react';
+import { Users, Clock, Puzzle, Skull, Star, Percent } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 
-export default function RoomCard({ room }) {
+export default function RoomCard({ room, hasOffer = false, offerText = null }) {
   const difficultyColors = {
     'Easy': 'text-green-400',
     'Medium': 'text-[color:var(--brand-accent)]',
@@ -23,7 +23,7 @@ export default function RoomCard({ room }) {
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
+
         {/* Badges */}
         <div className="absolute top-4 left-4 flex items-center gap-2">
           {room.isHorror && (
@@ -32,11 +32,18 @@ export default function RoomCard({ room }) {
               Horror
             </Badge>
           )}
+          {/* Offer Badge */}
+          {hasOffer && (
+            <Badge className="bg-green-500/20 border-green-500/30 text-green-400 animate-pulse">
+              <Percent className="w-3 h-3 mr-1" />
+              {offerText || 'Offer'}
+            </Badge>
+          )}
         </div>
 
         {/* Rating */}
         <div className="absolute top-4 right-4 flex items-center gap-1">
-          {[...Array(room.rating)].map((_, i) => (
+          {[...Array(room.rating || 0)].map((_, i) => (
             <Star key={i} className="w-4 h-4 fill-[color:var(--brand-accent)] text-[color:var(--brand-accent)]" />
           ))}
         </div>
@@ -64,7 +71,7 @@ export default function RoomCard({ room }) {
             <Clock className="w-4 h-4" />
             {room.duration} Min
           </span>
-          <span className={`flex items-center gap-1.5 ${difficultyColors[room.difficulty]}`}>
+          <span className={`flex items-center gap-1.5 ${difficultyColors[room.difficulty] || ''}`}>
             <Puzzle className="w-4 h-4" />
             {room.difficulty}
           </span>
@@ -78,8 +85,8 @@ export default function RoomCard({ room }) {
         {/* Actions */}
         <div className="pt-2 flex items-center gap-3">
           <Link to={`/rooms/${room.slug}`} className="flex-1">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full bg-transparent text-[color:var(--text-primary)] border-white/15 hover:border-[color:var(--brand-accent)] hover:text-[color:var(--brand-accent)] h-11 rounded-xl"
             >
               View Details

@@ -4,25 +4,52 @@ import Footer from '../components/layout/Footer';
 import RoomCard from '../components/rooms/RoomCard';
 import { bookingService } from '../lib/bookingService';
 import { roomAdapter } from '../lib/adapters';
+import { getAllActiveOffers } from '../lib/pricingEngine';
 import { Loader2 } from 'lucide-react';
 
 export default function RoomsPage() {
   const [rooms, setRooms] = useState([]);
+  const [offers, setOffers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRooms = async () => {
+    const fetchData = async () => {
       try {
-        const data = await bookingService.getRooms();
-        setRooms(data.map(roomAdapter));
+        const [roomsData, offersData] = await Promise.all([
+          bookingService.getRooms(),
+          getAllActiveOffers()
+        ]);
+        setRooms(roomsData.map(roomAdapter));
+        setOffers(offersData);
       } catch (err) {
-        console.error("Rooms fetch error:", err);
+        console.error("Fetch error:", err);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchRooms();
+    fetchData();
   }, []);
+
+  // Check if a room has an active offer
+  const getRoomOffer = (roomId) => {
+    const roomOffers = offers.filter(offer => {
+      if (!offer.room_ids || offer.room_ids.length === 0) {
+        return true; // Applies to all rooms
+      }
+      return offer.room_ids.includes(roomId);
+    });
+
+    if (roomOffers.length === 0) return null;
+
+    // Return first/best offer
+    const offer = roomOffers[0];
+    return {
+      hasOffer: true,
+      text: offer.discount_type === 'percentage'
+        ? `${offer.discount_value}% Off`
+        : `${offer.discount_value} EGP Off`
+    };
+  };
 
   return (
     <div className="min-h-screen bg-[color:var(--bg-base)]">
@@ -51,9 +78,17 @@ export default function RoomsPage() {
                 <Loader2 className="w-10 h-10 text-[color:var(--brand-accent)] animate-spin" />
               </div>
             ) : (
-              rooms.map((room) => (
-                <RoomCard key={room.id} room={room} />
-              ))
+              rooms.map((room) => {
+                const offerInfo = getRoomOffer(room.id);
+                return (
+                  <RoomCard
+                    key={room.id}
+                    room={room}
+                    hasOffer={offerInfo?.hasOffer || false}
+                    offerText={offerInfo?.text}
+                  />
+                );
+              })
             )}
           </div>
         </div>

@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Users, Clock, Skull, Calendar, Minus, Plus, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Users, Clock, Skull, Calendar, Minus, Plus, AlertCircle, Loader2, Tag, Check, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -12,6 +12,7 @@ import Footer from '../components/layout/Footer';
 import { bookingService } from '../lib/bookingService';
 import { roomAdapter } from '../lib/adapters';
 import { analytics } from '../lib/analytics';
+import { calculateBookingQuote, validatePromoCode } from '../lib/pricingEngine';
 import { format, isBefore, startOfDay } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
@@ -29,7 +30,16 @@ export default function BookingPage() {
   const [selectedTime, setSelectedTime] = useState('');
   const [playerCount, setPlayerCount] = useState(2);
   const [horrorEnabled, setHorrorEnabled] = useState(false);
-  const [promoCode, setPromoCode] = useState('');
+
+  // Promo code state
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [promoStatus, setPromoStatus] = useState('idle'); // idle, loading, valid, invalid
+  const [promoError, setPromoError] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState(null);
+
+  // Booking quote (pricing)
+  const [quote, setQuote] = useState(null);
+
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -77,12 +87,66 @@ export default function BookingPage() {
     loadSlots();
   }, [selectedDate, room]);
 
-  const pricePerPerson = useMemo(() => {
-    if (!room) return 0;
-    return room.pricing?.[playerCount] || room.pricing?.[room.maxPlayers] || 420;
-  }, [room, playerCount]);
+  // Calculate quote whenever relevant values change
+  const updateQuote = useCallback(async () => {
+    if (!room) return;
 
-  const totalPrice = useMemo(() => pricePerPerson * playerCount, [pricePerPerson, playerCount]);
+    const newQuote = await calculateBookingQuote({
+      roomId: room.id,
+      date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
+      timeSlot: selectedTime,
+      playerCount,
+      pricing: room.pricing,
+      promoCode: appliedPromo?.code || null
+    });
+
+    setQuote(newQuote);
+  }, [room, selectedDate, selectedTime, playerCount, appliedPromo]);
+
+  useEffect(() => {
+    updateQuote();
+  }, [updateQuote]);
+
+  // Handle promo code application
+  const handleApplyPromo = async () => {
+    if (!promoCodeInput.trim()) {
+      setPromoError('Please enter a promo code');
+      setPromoStatus('invalid');
+      return;
+    }
+
+    setPromoStatus('loading');
+    setPromoError('');
+
+    const validation = await validatePromoCode(promoCodeInput, {
+      roomId: room?.id,
+      playerCount,
+      date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null
+    });
+
+    if (validation.valid) {
+      setAppliedPromo(validation.promo);
+      setPromoStatus('valid');
+      setPromoError('');
+      toast.success(`Promo code "${validation.promo.code}" applied!`);
+    } else {
+      setPromoStatus('invalid');
+      setPromoError(validation.error);
+      setAppliedPromo(null);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoCodeInput('');
+    setPromoStatus('idle');
+    setPromoError('');
+  };
+
+  // Use quote values for display
+  const pricePerPerson = quote?.basePricePerPerson || 0;
+  const totalPrice = quote?.totalPrice || 0;
+  const hasDiscount = (quote?.discountAmount || 0) > 0;
 
   if (isLoading) {
     return (
@@ -109,6 +173,12 @@ export default function BookingPage() {
     const newCount = playerCount + delta;
     if (newCount >= room.minPlayers && newCount <= room.maxPlayers) {
       setPlayerCount(newCount);
+      // Re-validate promo if applied
+      if (appliedPromo) {
+        setPromoStatus('idle');
+        setAppliedPromo(null);
+        setPromoCodeInput(appliedPromo.code);
+      }
     }
   };
 
@@ -141,13 +211,14 @@ export default function BookingPage() {
         time_slot: selectedTime,
         player_count: playerCount,
         horror_mode: horrorEnabled,
-        total_price: totalPrice,
-        price_per_person: pricePerPerson,
-        applied_promo: promoCode || null,
+        total_price: quote.totalPrice,
+        price_per_person: quote.finalPricePerPerson,
+        applied_promo: quote.appliedPromo?.code || null,
+        applied_offer_id: quote.appliedOffer?.id || null,
         customer_name: customerName,
         customer_phone: customerPhone,
         customer_email: customerEmail || null,
-        status: 'new',
+        status: 'pending',
         utm_source: searchParams.get('utm_source'),
         utm_medium: searchParams.get('utm_medium'),
         utm_campaign: searchParams.get('utm_campaign'),
@@ -163,7 +234,7 @@ export default function BookingPage() {
       analytics.track('Lead', {
         booking_id: result.id,
         room_name: room.name,
-        value: totalPrice,
+        value: quote.totalPrice,
         players: playerCount,
         event_id: bookingData.event_id
       });
@@ -176,17 +247,15 @@ export default function BookingPage() {
           time: selectedTime,
           players: playerCount,
           customerName,
-          totalPrice
+          totalPrice: quote.totalPrice
         }
       });
     } catch (err) {
       console.error(err);
       toast.error(err.message || "Failed to submit booking");
 
-      // Auto-refresh availability logic (simple version: stay on page but show error)
       if (err.message.includes('taken')) {
         setSelectedTime('');
-        // We could re-fetch slots here if needed
       }
     } finally {
       setIsSubmitting(false);
@@ -271,6 +340,9 @@ export default function BookingPage() {
                     ))}
                   </div>
                   {errors.time && <p className="text-sm text-red-400">{errors.time}</p>}
+                  {selectedDate && availableSlots.length === 0 && (
+                    <p className="text-sm text-[color:var(--text-muted)]">No slots available for this date</p>
+                  )}
                 </div>
 
                 {/* Player Count */}
@@ -325,15 +397,72 @@ export default function BookingPage() {
                   </div>
                 )}
 
-                {/* Promo Code */}
+                {/* Promo Code with Apply Button */}
                 <div className="space-y-2">
-                  <Label className="text-white">Promo Code (Optional)</Label>
-                  <Input
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                    placeholder="Enter promo code"
-                    className="h-12 rounded-xl bg-black/30 border-white/10 text-white placeholder:text-white/35"
-                  />
+                  <Label className="text-white flex items-center gap-2">
+                    <Tag className="w-4 h-4" />
+                    Promo Code (Optional)
+                  </Label>
+
+                  {promoStatus === 'valid' && appliedPromo ? (
+                    // Applied promo display
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-green-500/10 border border-green-500/30">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-5 h-5 text-green-400" />
+                        <span className="text-green-400 font-medium">{appliedPromo.code}</span>
+                        <span className="text-green-400/70 text-sm">
+                          (-{appliedPromo.discount_type === 'percentage'
+                            ? `${appliedPromo.discount_value}%`
+                            : `${appliedPromo.discount_value} EGP`})
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemovePromo}
+                        className="text-green-400 hover:text-red-400 hover:bg-red-500/10"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    // Promo input
+                    <div className="flex gap-2">
+                      <Input
+                        value={promoCodeInput}
+                        onChange={(e) => {
+                          setPromoCodeInput(e.target.value.toUpperCase());
+                          if (promoStatus !== 'idle') {
+                            setPromoStatus('idle');
+                            setPromoError('');
+                          }
+                        }}
+                        placeholder="Enter promo code"
+                        className={`h-12 rounded-xl bg-black/30 border-white/10 text-white placeholder:text-white/35 flex-1 ${promoStatus === 'invalid' ? 'border-red-500' : ''
+                          }`}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleApplyPromo}
+                        disabled={promoStatus === 'loading'}
+                        className="h-12 px-6 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20"
+                      >
+                        {promoStatus === 'loading' ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          'Apply'
+                        )}
+                      </Button>
+                    </div>
+                  )}
+
+                  {promoError && (
+                    <p className="text-sm text-red-400 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {promoError}
+                    </p>
+                  )}
                 </div>
 
                 {/* Customer Details */}
@@ -421,23 +550,37 @@ export default function BookingPage() {
                   <div className="border-t border-white/10 pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-[color:var(--text-muted)]">{playerCount} players × {pricePerPerson} EGP</span>
-                      <span className="text-white">{totalPrice} EGP</span>
+                      <span className="text-white">{quote?.baseTotal || pricePerPerson * playerCount} EGP</span>
                     </div>
-                    {promoCode && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-[color:var(--text-muted)]">Promo: {promoCode}</span>
-                        <span className="text-green-400">Pending</span>
+
+                    {/* Discount breakdown */}
+                    {quote?.discountBreakdown?.map((discount, idx) => (
+                      <div key={idx} className="flex justify-between text-sm">
+                        <span className="text-green-400">{discount.name}</span>
+                        <span className="text-green-400">-{discount.amount} EGP</span>
                       </div>
-                    )}
+                    ))}
                   </div>
 
                   <div className="border-t border-white/10 pt-4">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-[color:var(--text-muted)]">Total</span>
-                      <span className="font-display text-2xl font-bold text-[color:var(--brand-accent)]">
-                        {totalPrice} EGP
-                      </span>
+                      <div className="text-right">
+                        {hasDiscount && (
+                          <span className="text-sm text-[color:var(--text-muted)] line-through mr-2">
+                            {quote?.baseTotal} EGP
+                          </span>
+                        )}
+                        <span className="font-display text-2xl font-bold text-[color:var(--brand-accent)]">
+                          {totalPrice} EGP
+                        </span>
+                      </div>
                     </div>
+                    {hasDiscount && (
+                      <p className="text-xs text-green-400 text-right mt-1">
+                        You save {quote?.discountAmount} EGP!
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

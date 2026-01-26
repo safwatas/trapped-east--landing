@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Users, Clock, Puzzle, Skull, Star, AlertTriangle, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Users, Clock, Puzzle, Skull, Star, AlertTriangle, Loader2, Percent } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import Navbar from '../components/layout/Navbar';
@@ -8,6 +8,7 @@ import Footer from '../components/layout/Footer';
 import { bookingService } from '../lib/bookingService';
 import { roomAdapter } from '../lib/adapters';
 import { analytics } from '../lib/analytics';
+import { getAllActiveOffers } from '../lib/pricingEngine';
 import { toast } from 'sonner';
 
 export default function RoomDetailPage() {
@@ -16,17 +17,31 @@ export default function RoomDetailPage() {
 
   const [room, setRoom] = useState(null);
   const [rooms, setRooms] = useState([]);
+  const [activeOffer, setActiveOffer] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [dbRoom, dbRooms] = await Promise.all([
+        const [dbRoom, dbRooms, offers] = await Promise.all([
           bookingService.getRoomBySlug(slug),
-          bookingService.getRooms()
+          bookingService.getRooms(),
+          getAllActiveOffers()
         ]);
-        setRoom(roomAdapter(dbRoom));
+        const adaptedRoom = roomAdapter(dbRoom);
+        setRoom(adaptedRoom);
         setRooms(dbRooms.map(roomAdapter));
+
+        // Check for offers applicable to this room
+        const roomOffers = offers.filter(offer => {
+          if (!offer.room_ids || offer.room_ids.length === 0) {
+            return true; // Applies to all rooms
+          }
+          return offer.room_ids.includes(adaptedRoom.id);
+        });
+        if (roomOffers.length > 0) {
+          setActiveOffer(roomOffers[0]);
+        }
 
         // Track ViewContent/ViewRoom
         analytics.track('ViewRoom', {
@@ -133,6 +148,14 @@ export default function RoomDetailPage() {
                   <Badge className="bg-red-500/10 border-red-500/30 text-red-400">
                     <Skull className="w-3.5 h-3.5 mr-1.5" />
                     Horror
+                  </Badge>
+                )}
+                {activeOffer && (
+                  <Badge className="bg-green-500/10 border-green-500/30 text-green-400 animate-pulse">
+                    <Percent className="w-3.5 h-3.5 mr-1.5" />
+                    {activeOffer.discount_type === 'percentage'
+                      ? `${activeOffer.discount_value}% Off`
+                      : `${activeOffer.discount_value} EGP Off`}
                   </Badge>
                 )}
               </div>
