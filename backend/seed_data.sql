@@ -7,14 +7,15 @@ TRUNCATE TABLE room_images, pricing_tiers, bookings, rooms, time_slots RESTART I
 -- Time Slots
 -- Fixed daily: 3:00 PM, 4:30 PM, 6:00 PM, 7:30 PM, 9:00 PM, 10:30 PM, 12:00 AM, 1:30 AM
 INSERT INTO time_slots (slot_time, is_active) VALUES
-  ('15:00', true),
-  ('16:30', true),
-  ('18:00', true),
-  ('19:30', true),
-  ('21:00', true),
-  ('22:30', true),
-  ('00:00', true),
-  ('01:30', true)
+  ('01:30 AM', true),
+  ('12:00 AM', true),
+  ('10:30 PM', true),
+  ('09:00 PM', true),
+  ('08:30 PM', true),
+  ('07:00 PM', true),
+  ('06:30 PM', true),
+  ('04:30 PM', true),
+  ('03:00 PM', true)
 ON CONFLICT (slot_time) DO UPDATE SET is_active = EXCLUDED.is_active;
 
 -- Rooms

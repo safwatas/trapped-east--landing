@@ -9,7 +9,7 @@ const suppressResizeObserverError = () => {
   const resizeObserverErr = window.onerror;
   window.onerror = function (message, source, lineno, colno, error) {
     if (message === 'ResizeObserver loop completed with undelivered notifications.' ||
-        message === 'ResizeObserver loop limit exceeded') {
+      message === 'ResizeObserver loop limit exceeded') {
       return true;
     }
     if (resizeObserverErr) {
@@ -29,6 +29,12 @@ import ConfirmationPage from "./pages/ConfirmationPage";
 import FindUsPage from "./pages/FindUsPage";
 import ContactPage from "./pages/ContactPage";
 
+// Event Pages
+import EventsPage from "./pages/EventsPage";
+import CorporateEventPage from "./pages/CorporateEventPage";
+import SchoolTripsPage from "./pages/SchoolTripsPage";
+import BirthdayEventPage from "./pages/BirthdayEventPage";
+
 // Admin Pages
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -37,6 +43,7 @@ import AdminBookings from "./pages/admin/AdminBookings";
 import AdminRooms from "./pages/admin/AdminRooms";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminEvents from "./pages/admin/AdminEvents";
 
 function App() {
   return (
@@ -53,6 +60,12 @@ function App() {
           <Route path="/find-us" element={<FindUsPage />} />
           <Route path="/contact" element={<ContactPage />} />
 
+          {/* Event Routes */}
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/corporate" element={<CorporateEventPage />} />
+          <Route path="/events/school-trips" element={<SchoolTripsPage />} />
+          <Route path="/events/birthdays" element={<BirthdayEventPage />} />
+
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminLayout />}>
@@ -62,6 +75,7 @@ function App() {
             <Route path="rooms" element={<AdminRooms />} />
             <Route path="pricing" element={<AdminPricing />} />
             <Route path="customers" element={<AdminCustomers />} />
+            <Route path="events" element={<AdminEvents />} />
           </Route>
         </Routes>
       </BrowserRouter>
@@ -71,3 +85,4 @@ function App() {
 }
 
 export default App;
+

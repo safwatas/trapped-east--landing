@@ -10,7 +10,8 @@ import {
   LogOut,
   Menu,
   X,
-  Loader2
+  Loader2,
+  PartyPopper
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../../components/ui/sheet';
@@ -20,6 +21,7 @@ import { siteConfig } from '../../config/site';
 const navItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Bookings', path: '/admin/bookings', icon: Calendar },
+  { name: 'Events', path: '/admin/events', icon: PartyPopper },
   { name: 'Rooms', path: '/admin/rooms', icon: DoorOpen },
   { name: 'Pricing', path: '/admin/pricing', icon: Tag },
   { name: 'Customers', path: '/admin/customers', icon: Users },

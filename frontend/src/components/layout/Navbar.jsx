@@ -18,6 +18,7 @@ const Logo = () => (
 const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Rooms', path: '/rooms' },
+  { name: 'Events', path: '/events' },
   { name: 'Find Us', path: '/find-us' },
   { name: 'Contact', path: '/contact' },
 ];
