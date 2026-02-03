@@ -172,10 +172,10 @@ export const bookingService = {
         const { data, error } = await supabase
             .from('promo_codes')
             .select('*')
-            .order('created_at', { ascending: false })
+            .order('code')
 
         if (error) throw error
-        return data
+        return data || []
     },
 
     /**

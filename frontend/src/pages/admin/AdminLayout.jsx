@@ -32,6 +32,7 @@ export default function AdminLayout() {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -39,14 +40,17 @@ export default function AdminLayout() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
           localStorage.removeItem('adminAuth');
-          navigate('/admin');
+          setIsAuthenticated(false);
+          navigate('/admin/login');
           return;
         }
         // Set adminAuth for backward compatibility
         localStorage.setItem('adminAuth', 'true');
+        setIsAuthenticated(true);
       } catch (err) {
         console.error('Auth check failed:', err);
-        navigate('/admin');
+        setIsAuthenticated(false);
+        navigate('/admin/login');
       } finally {
         setIsLoading(false);
       }
@@ -57,7 +61,10 @@ export default function AdminLayout() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         localStorage.removeItem('adminAuth');
-        navigate('/admin');
+        setIsAuthenticated(false);
+        navigate('/admin/login');
+      } else if (session) {
+        setIsAuthenticated(true);
       }
     });
 
@@ -67,7 +74,7 @@ export default function AdminLayout() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem('adminAuth');
-    navigate('/admin');
+    navigate('/admin/login');
   };
 
   if (isLoading) {

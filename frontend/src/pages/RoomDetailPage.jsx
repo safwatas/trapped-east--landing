@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, Users, Clock, Puzzle, Skull, Star, AlertTriangle, Loader2, Percent } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -14,11 +15,24 @@ import { toast } from 'sonner';
 export default function RoomDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   const [room, setRoom] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [activeOffer, setActiveOffer] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Difficulty translation map
+  const getDifficultyLabel = (difficulty) => {
+    const difficultyMap = {
+      'Easy': t('rooms.easy'),
+      'Medium': t('rooms.medium'),
+      'Hard': t('rooms.hard'),
+      'Very Hard': t('rooms.hard'),
+      'Expert': t('rooms.expert')
+    };
+    return difficultyMap[difficulty] || difficulty;
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -28,9 +42,10 @@ export default function RoomDetailPage() {
           bookingService.getRooms(),
           getAllActiveOffers()
         ]);
-        const adaptedRoom = roomAdapter(dbRoom);
+        // Pass current language to adapter for localized content
+        const adaptedRoom = roomAdapter(dbRoom, i18n.language);
         setRoom(adaptedRoom);
-        setRooms(dbRooms.map(roomAdapter));
+        setRooms(dbRooms.map(r => roomAdapter(r, i18n.language)));
 
         // Check for offers applicable to this room
         const roomOffers = offers.filter(offer => {
@@ -46,17 +61,18 @@ export default function RoomDetailPage() {
         // Track ViewContent/ViewRoom
         analytics.track('ViewRoom', {
           room_id: dbRoom.id,
-          room_name: dbRoom.name
+          room_name: dbRoom.name,
+          language: i18n.language
         });
       } catch (err) {
         console.error(err);
-        toast.error("Failed to load room details");
+        toast.error(t('common.error'));
       } finally {
         setIsLoading(false);
       }
     };
     loadData();
-  }, [slug]);
+  }, [slug, i18n.language, t]);
 
   const currentIndex = rooms.findIndex(r => r.slug === slug);
   const prevRoom = currentIndex > 0 ? rooms[currentIndex - 1] : null;
@@ -74,9 +90,9 @@ export default function RoomDetailPage() {
     return (
       <div className="min-h-screen bg-[color:var(--bg-base)] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Room not found</h1>
+          <h1 className="text-2xl font-bold text-white mb-4">{t('roomDetail.notFound')}</h1>
           <Link to="/rooms">
-            <Button className="bg-[color:var(--brand-accent)] text-black">Back to Rooms</Button>
+            <Button className="bg-[color:var(--brand-accent)] text-black">{t('roomDetail.backToRooms')}</Button>
           </Link>
         </div>
       </div>
@@ -100,9 +116,9 @@ export default function RoomDetailPage() {
 
       {/* Back Button */}
       <div className="max-w-6xl mx-auto px-4 md:px-8 pt-6">
-        <Link to="/rooms" className="inline-flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors">
+        <Link to="/rooms" className="inline-flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors ltr-flex">
           <ArrowLeft className="w-4 h-4" />
-          Back to Rooms
+          {t('roomDetail.backToRooms')}
         </Link>
       </div>
 
@@ -120,7 +136,7 @@ export default function RoomDetailPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
               {/* Rating */}
-              <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5">
+              <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5">
                 {[...Array(room.rating)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-[color:var(--brand-accent)] text-[color:var(--brand-accent)]" />
                 ))}
@@ -139,23 +155,23 @@ export default function RoomDetailPage() {
               </div>
 
               {/* Badges */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 ltr-flex">
                 <Badge className={difficultyColors[room.difficulty]}>
-                  <Puzzle className="w-3.5 h-3.5 mr-1.5" />
-                  {room.difficulty}
+                  <Puzzle className="w-3.5 h-3.5 ltr:mr-1.5 rtl:ml-1.5" />
+                  {getDifficultyLabel(room.difficulty)}
                 </Badge>
                 {room.isHorror && (
                   <Badge className="bg-red-500/10 border-red-500/30 text-red-400">
-                    <Skull className="w-3.5 h-3.5 mr-1.5" />
-                    Horror
+                    <Skull className="w-3.5 h-3.5 ltr:mr-1.5 rtl:ml-1.5" />
+                    {t('roomDetail.horror')}
                   </Badge>
                 )}
                 {activeOffer && (
                   <Badge className="bg-green-500/10 border-green-500/30 text-green-400 animate-pulse">
-                    <Percent className="w-3.5 h-3.5 mr-1.5" />
+                    <Percent className="w-3.5 h-3.5 ltr:mr-1.5 rtl:ml-1.5" />
                     {activeOffer.discount_type === 'percentage'
-                      ? `${activeOffer.discount_value}% Off`
-                      : `${activeOffer.discount_value} EGP Off`}
+                      ? `${activeOffer.discount_value}% ${t('roomDetail.off')}`
+                      : `${activeOffer.discount_value} ${t('common.egp')} ${t('roomDetail.off')}`}
                   </Badge>
                 )}
               </div>
@@ -163,28 +179,28 @@ export default function RoomDetailPage() {
               {/* Specs */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-[color:var(--bg-surface)] border border-white/10">
-                  <div className="flex items-center gap-2 text-[color:var(--text-muted)] mb-1">
+                  <div className="flex items-center gap-2 text-[color:var(--text-muted)] mb-1 ltr-flex">
                     <Users className="w-4 h-4" />
-                    <span className="text-sm">Players</span>
+                    <span className="text-sm">{t('rooms.players')}</span>
                   </div>
                   <p className="font-display text-xl font-semibold text-white">
                     {room.minPlayers} - {room.maxPlayers}
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-[color:var(--bg-surface)] border border-white/10">
-                  <div className="flex items-center gap-2 text-[color:var(--text-muted)] mb-1">
+                  <div className="flex items-center gap-2 text-[color:var(--text-muted)] mb-1 ltr-flex">
                     <Clock className="w-4 h-4" />
-                    <span className="text-sm">Duration</span>
+                    <span className="text-sm">{t('rooms.duration')}</span>
                   </div>
                   <p className="font-display text-xl font-semibold text-white">
-                    {room.duration} Minutes
+                    {room.duration} {t('rooms.minutes')}
                   </p>
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <h3 className="font-display font-semibold text-white mb-3">The Story</h3>
+                <h3 className="font-display font-semibold text-white mb-3">{t('roomDetail.theStory')}</h3>
                 <p className="text-[color:var(--text-secondary)] leading-relaxed">
                   {room.description}
                 </p>
@@ -192,12 +208,12 @@ export default function RoomDetailPage() {
 
               {/* Horror Toggle Notice */}
               {room.horrorToggleable && (
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30">
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 ltr-flex">
                   <AlertTriangle className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-orange-400">Horror elements can be disabled</p>
+                    <p className="text-sm font-medium text-orange-400">{t('roomDetail.horrorCanBeDisabled')}</p>
                     <p className="text-xs text-orange-400/70 mt-1">
-                      If you prefer a non-horror experience, you can disable horror elements during booking.
+                      {t('roomDetail.horrorDisableDesc')}
                     </p>
                   </div>
                 </div>
@@ -205,24 +221,24 @@ export default function RoomDetailPage() {
 
               {/* Price */}
               <div className="p-5 rounded-2xl bg-[color:var(--bg-surface)] border border-white/10">
-                <div className="flex items-baseline gap-2 mb-1">
+                <div className="flex items-baseline gap-2 mb-1 ltr-flex">
                   <span className="font-display text-3xl font-bold text-[color:var(--brand-accent)]">
-                    {minPrice} - {maxPrice} EGP
+                    {minPrice} - {maxPrice} {t('common.egp')}
                   </span>
-                  <span className="text-sm text-[color:var(--text-muted)]">/person</span>
+                  <span className="text-sm text-[color:var(--text-muted)]">{t('rooms.perPerson')}</span>
                 </div>
                 <p className="text-xs text-[color:var(--text-muted)]">
-                  Price varies based on group size
+                  {t('roomDetail.priceVaries')}
                 </p>
               </div>
 
               {/* CTA */}
               <Button
                 onClick={() => navigate(`/book/${room.slug}`)}
-                className="w-full bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 rounded-xl text-lg"
+                className="w-full bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 rounded-xl text-lg ltr-flex items-center justify-center gap-2"
               >
-                Book This Room
-                <ArrowRight className="ml-2 w-5 h-5" />
+                {t('roomDetail.bookThisRoom')}
+                <ArrowRight className="w-5 h-5" />
               </Button>
             </div>
           </div>
@@ -236,11 +252,11 @@ export default function RoomDetailPage() {
             {prevRoom ? (
               <Link
                 to={`/rooms/${prevRoom.slug}`}
-                className="flex items-center gap-3 text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
+                className="flex items-center gap-3 text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors ltr-flex"
               >
                 <ArrowLeft className="w-5 h-5" />
-                <div className="text-left">
-                  <p className="text-xs uppercase tracking-wider">Previous</p>
+                <div className="ltr:text-left rtl:text-right">
+                  <p className="text-xs uppercase tracking-wider">{t('roomDetail.previous')}</p>
                   <p className="font-display font-semibold text-white">{prevRoom.name}</p>
                 </div>
               </Link>
@@ -249,10 +265,10 @@ export default function RoomDetailPage() {
             {nextRoom ? (
               <Link
                 to={`/rooms/${nextRoom.slug}`}
-                className="flex items-center gap-3 text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
+                className="flex items-center gap-3 text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors ltr-flex"
               >
-                <div className="text-right">
-                  <p className="text-xs uppercase tracking-wider">Next</p>
+                <div className="ltr:text-right rtl:text-left">
+                  <p className="text-xs uppercase tracking-wider">{t('roomDetail.next')}</p>
                   <p className="font-display font-semibold text-white">{nextRoom.name}</p>
                 </div>
                 <ArrowRight className="w-5 h-5" />

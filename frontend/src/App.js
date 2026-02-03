@@ -4,12 +4,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import ScrollToTop from "./components/ScrollToTop";
 
-// Suppress ResizeObserver errors (common with Radix UI)
+// Suppress ResizeObserver errors (common with Radix UI components like Select/Dialog)
+// These errors are harmless and occur frequently with dynamic UI components
 const suppressResizeObserverError = () => {
+  // Suppress via window.onerror
   const resizeObserverErr = window.onerror;
   window.onerror = function (message, source, lineno, colno, error) {
-    if (message === 'ResizeObserver loop completed with undelivered notifications.' ||
-      message === 'ResizeObserver loop limit exceeded') {
+    if (typeof message === 'string' && message.includes('ResizeObserver')) {
       return true;
     }
     if (resizeObserverErr) {
@@ -17,8 +18,28 @@ const suppressResizeObserverError = () => {
     }
     return false;
   };
+
+  // Suppress via error event listener (catches React error overlay)
+  window.addEventListener('error', (event) => {
+    if (event.message && event.message.includes('ResizeObserver')) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      return true;
+    }
+  }, true);
+
+  // Suppress via unhandledrejection (for Promise-based errors)
+  window.addEventListener('unhandledrejection', (event) => {
+    if (event.reason && event.reason.message &&
+      event.reason.message.includes('ResizeObserver')) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      return true;
+    }
+  }, true);
 };
 suppressResizeObserverError();
+
 
 // Pages
 import HomePage from "./pages/HomePage";

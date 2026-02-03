@@ -3,7 +3,7 @@
  * Maps Supabase database objects to the format expected by the frontend components.
  */
 
-export const roomAdapter = (dbRoom) => {
+export const roomAdapter = (dbRoom, language = 'en') => {
     if (!dbRoom) return null;
 
     // Sort images by order_index
@@ -11,12 +11,35 @@ export const roomAdapter = (dbRoom) => {
         ? [...dbRoom.room_images].sort((a, b) => a.order_index - b.order_index)
         : [];
 
+    // Get localized content based on language
+    // If Arabic content exists and language is 'ar', use Arabic; otherwise fallback to English
+    const getName = () => {
+        if (language === 'ar' && dbRoom.name_ar) return dbRoom.name_ar;
+        return dbRoom.name;
+    };
+
+    const getTagline = () => {
+        if (language === 'ar' && dbRoom.tagline_ar) return dbRoom.tagline_ar;
+        return dbRoom.tagline;
+    };
+
+    const getDescription = () => {
+        if (language === 'ar' && dbRoom.description_ar) return dbRoom.description_ar;
+        return dbRoom.description;
+    };
+
     return {
         id: dbRoom.id,
         slug: dbRoom.slug,
-        name: dbRoom.name,
-        tagline: dbRoom.tagline,
-        description: dbRoom.description,
+        name: getName(),
+        name_en: dbRoom.name,
+        name_ar: dbRoom.name_ar || null,
+        tagline: getTagline(),
+        tagline_en: dbRoom.tagline,
+        tagline_ar: dbRoom.tagline_ar || null,
+        description: getDescription(),
+        description_en: dbRoom.description,
+        description_ar: dbRoom.description_ar || null,
         minPlayers: dbRoom.min_players,
         maxPlayers: dbRoom.max_players,
         duration: dbRoom.duration,
@@ -34,6 +57,21 @@ export const roomAdapter = (dbRoom) => {
         }, {}) || {}
     };
 };
+
+/**
+ * Get localized room data based on current language
+ */
+export const getLocalizedRoom = (room, language) => {
+    if (!room) return null;
+
+    return {
+        ...room,
+        name: language === 'ar' && room.name_ar ? room.name_ar : room.name_en || room.name,
+        tagline: language === 'ar' && room.tagline_ar ? room.tagline_ar : room.tagline_en || room.tagline,
+        description: language === 'ar' && room.description_ar ? room.description_ar : room.description_en || room.description
+    };
+};
+
 
 export const bookingAdapter = (dbBooking) => {
     if (!dbBooking) return null;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import RoomCard from '../components/rooms/RoomCard';
@@ -8,6 +9,7 @@ import { getAllActiveOffers } from '../lib/pricingEngine';
 import { Loader2 } from 'lucide-react';
 
 export default function RoomsPage() {
+  const { t, i18n } = useTranslation();
   const [rooms, setRooms] = useState([]);
   const [offers, setOffers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +21,8 @@ export default function RoomsPage() {
           bookingService.getRooms(),
           getAllActiveOffers()
         ]);
-        setRooms(roomsData.map(roomAdapter));
+        // Pass current language to adapter for localized content
+        setRooms(roomsData.map(r => roomAdapter(r, i18n.language)));
         setOffers(offersData);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -28,7 +31,7 @@ export default function RoomsPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [i18n.language]);
 
   // Check if a room has an active offer
   const getRoomOffer = (roomId) => {
@@ -60,11 +63,10 @@ export default function RoomsPage() {
         <div className="max-w-6xl mx-auto">
           <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--brand-accent)] mb-3">New Cairo Branch</p>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-white mb-4">
-            Choose Your Room
+            {t('rooms.pageTitle')}
           </h1>
           <p className="text-lg text-[color:var(--text-secondary)] max-w-2xl">
-            We offer several themed rooms, each one masterfully designed to be filled with elaborate
-            logic puzzles you need to solve in order to escape.
+            {t('rooms.pageSubtitle')}
           </p>
         </div>
       </section>

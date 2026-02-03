@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Building2, GraduationCap, Cake, CheckCircle, Users, Clock, Shield, Star } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
@@ -17,61 +18,62 @@ const iconMap = {
     'cake': Cake
 };
 
-const benefitsMap = {
-    corporate: [
-        { icon: Users, title: 'Team Bonding', description: 'Build stronger connections through collaborative problem-solving' },
-        { icon: Clock, title: 'Flexible Scheduling', description: 'Book during work hours or after for team outings' },
-        { icon: Shield, title: 'Safe Environment', description: 'Professional, controlled setting for all team members' },
-        { icon: Star, title: 'Memorable Experience', description: 'Create lasting memories that boost morale' }
-    ],
-    school: [
-        { icon: Users, title: 'Social Skills', description: 'Students learn to communicate and work together' },
-        { icon: Clock, title: 'Educational Value', description: 'Problem-solving, critical thinking, and time management' },
-        { icon: Shield, title: 'Supervised & Safe', description: 'Adult supervision with age-appropriate challenges' },
-        { icon: Star, title: 'Fun Learning', description: 'Education through immersive entertainment' }
-    ],
-    birthday: [
-        { icon: Users, title: 'Group Fun', description: 'Perfect activity for groups of friends' },
-        { icon: Clock, title: 'All-Inclusive', description: 'Room time, party area, and optional add-ons' },
-        { icon: Shield, title: 'Stress-Free', description: 'We handle the logistics, you enjoy the party' },
-        { icon: Star, title: 'Unforgettable', description: "A birthday they'll remember forever" }
-    ]
-};
-
-// Default fallback benefits
-const defaultBenefits = [
-    { icon: Users, title: 'Group Experience', description: 'Perfect for groups of all sizes' },
-    { icon: Clock, title: 'Flexible Options', description: 'Customizable packages to fit your needs' },
-    { icon: Shield, title: 'Professional Service', description: 'Expert coordination and support' },
-    { icon: Star, title: 'Memorable Moments', description: 'Create unforgettable memories' }
-];
-
-// Hero images for each event type
+// Hero images for each event type - using Trapped Egypt brand images
 const heroImages = {
-    corporate: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80&auto=format&fit=crop',
-    school: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=80&auto=format&fit=crop',
-    birthday: 'https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=1200&q=80&auto=format&fit=crop'
+    corporate: 'https://trappedegypt.com/wp-content/uploads/2022/11/308395774_10158401824506887_3821479258953938995_n.jpg',
+    school: 'https://trappedegypt.com/wp-content/uploads/2022/11/301480900_5402541189825088_5992069561772376960_n.jpg',
+    birthday: 'https://trappedegypt.com/wp-content/uploads/2022/11/12747901_1728982850678493_8334344267627891082_o.jpg.webp'
 };
 
 function EventDetailPageContent({ eventType }) {
+    const { t, i18n } = useTranslation();
     const [isFormOpen, setIsFormOpen] = useState(false);
+
+    // Map event ID to translation key
+    const getEventTranslationKey = (eventId) => {
+        const keyMap = {
+            'corporate': 'corporate',
+            'school': 'school',
+            'birthday': 'birthday'
+        };
+        return keyMap[eventId] || eventId;
+    };
+
+    const translationKey = getEventTranslationKey(eventType);
+
+    // Get translated content
+    const eventTitle = t(`events.${translationKey}.title`);
+    const eventShortDesc = t(`events.${translationKey}.shortDesc`);
+    const eventBullets = t(`events.${translationKey}.bullets`, { returnObjects: true }) || [];
+
+    // Get translated benefits
+    const benefitsItems = t(`events.${translationKey}.benefitsItems`, { returnObjects: true }) || [];
+
+    // Get how it works steps
+    const howItWorksSteps = [
+        { title: t('events.howItWorks.step1Title'), desc: t('events.howItWorks.step1Desc') },
+        { title: t('events.howItWorks.step2Title'), desc: t('events.howItWorks.step2Desc') },
+        { title: t('events.howItWorks.step3Title'), desc: t('events.howItWorks.step3Desc') }
+    ];
 
     // Safe data access with fallbacks
     const eventInfo = eventTypes?.find(e => e.id === eventType) || null;
     const formConfig = eventFormConfig?.[eventType] || null;
-    const benefits = benefitsMap?.[eventType] || defaultBenefits;
     const Icon = iconMap[eventInfo?.icon] || Building2;
     const heroImage = heroImages[eventType];
 
+    // Icons for benefits
+    const benefitIcons = [Users, Clock, Shield, Star];
 
     useEffect(() => {
         if (eventType) {
             analytics.track('ViewEventPage', {
                 event_type: eventType,
-                page: `/events/${eventType === 'school' ? 'school-trips' : eventType}`
+                page: `/events/${eventType === 'school' ? 'school-trips' : eventType}`,
+                language: i18n.language
             });
         }
-    }, [eventType]);
+    }, [eventType, i18n.language]);
 
     // Defensive check - render fallback if config is missing
     if (!eventInfo || !formConfig) {
@@ -80,13 +82,13 @@ function EventDetailPageContent({ eventType }) {
                 <Navbar />
                 <div className="flex items-center justify-center py-24 px-4">
                     <div className="text-center max-w-md">
-                        <h1 className="text-2xl font-bold text-white mb-4">Event Not Found</h1>
+                        <h1 className="text-2xl font-bold text-white mb-4">{t('events.notFound')}</h1>
                         <p className="text-[color:var(--text-muted)] mb-6">
-                            We couldn't find the event type you're looking for.
+                            {t('events.notFoundDesc')}
                         </p>
                         <Link to="/events">
                             <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)]">
-                                View All Events
+                                {t('events.viewAll')}
                             </Button>
                         </Link>
                     </div>
@@ -102,9 +104,9 @@ function EventDetailPageContent({ eventType }) {
 
             {/* Back Button */}
             <div className="max-w-6xl mx-auto px-4 md:px-8 pt-6">
-                <Link to="/events" className="inline-flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors">
+                <Link to="/events" className="inline-flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors ltr-flex">
                     <ArrowLeft className="w-4 h-4" />
-                    Back to Events
+                    {t('events.backToEvents')}
                 </Link>
             </div>
 
@@ -114,51 +116,55 @@ function EventDetailPageContent({ eventType }) {
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Content */}
                         <div className="space-y-6">
-                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${eventInfo.color} border border-white/10`}>
+                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${eventInfo.color} border border-white/10 ltr-flex`}>
                                 <Icon className="w-5 h-5 text-[color:var(--brand-accent)]" />
-                                <span className="text-sm font-medium text-white">Special Event</span>
+                                <span className="text-sm font-medium text-white">{t('nav.specialEvents')}</span>
                             </div>
 
                             <h1 className="font-display text-4xl md:text-5xl font-bold text-white">
-                                {eventInfo.title}
+                                {eventTitle}
                             </h1>
 
                             <p className="text-lg text-[color:var(--text-secondary)] leading-relaxed">
-                                {eventInfo.shortDescription}
+                                {eventShortDesc}
                             </p>
 
                             {/* Bullets */}
-                            <ul className="space-y-3 pt-4">
-                                {eventInfo.bullets.map((bullet, index) => (
-                                    <li key={index} className="flex items-start gap-3 text-[color:var(--text-secondary)]">
-                                        <CheckCircle className="w-5 h-5 text-[color:var(--brand-accent)] flex-shrink-0 mt-0.5" />
-                                        <span>{bullet}</span>
-                                    </li>
-                                ))}
-                            </ul>
+                            {Array.isArray(eventBullets) && eventBullets.length > 0 && (
+                                <ul className="space-y-3 pt-4">
+                                    {eventBullets.map((bullet, index) => (
+                                        <li key={index} className="flex items-start gap-3 text-[color:var(--text-secondary)]">
+                                            <CheckCircle className="w-5 h-5 text-[color:var(--brand-accent)] flex-shrink-0 mt-0.5" />
+                                            <span>{bullet}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
 
                             {/* CTA */}
                             <div className="pt-6">
                                 <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                                     <DialogTrigger asChild>
                                         <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 px-10 rounded-xl text-lg">
-                                            Request a Quote
+                                            {t('events.requestQuote')}
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="bg-[color:var(--bg-elevated)] border-white/10 max-w-lg max-h-[90vh] overflow-y-auto">
                                         <DialogHeader>
                                             <DialogTitle className="font-display text-xl text-white">
-                                                {formConfig.title}
+                                                {eventTitle}
                                             </DialogTitle>
                                             <p className="text-sm text-[color:var(--text-muted)]">
-                                                {formConfig.subtitle}
+                                                {t('events.formSubtitle')}
                                             </p>
                                         </DialogHeader>
-                                        <EventForm
-                                            eventType={eventType}
-                                            config={formConfig}
-                                            onSuccess={() => setTimeout(() => setIsFormOpen(false), 3000)}
-                                        />
+                                        {formConfig && (
+                                            <EventForm
+                                                eventType={eventType}
+                                                config={formConfig}
+                                                onSuccess={() => setTimeout(() => setIsFormOpen(false), 3000)}
+                                            />
+                                        )}
                                     </DialogContent>
                                 </Dialog>
                             </div>
@@ -171,16 +177,19 @@ function EventDetailPageContent({ eventType }) {
                                 <div className="relative rounded-3xl overflow-hidden aspect-video shadow-2xl">
                                     <img
                                         src={heroImage}
-                                        alt={eventInfo.title}
+                                        alt={eventTitle}
                                         className="w-full h-full object-cover"
                                         loading="lazy"
+                                        onError={(e) => {
+                                            e.target.style.opacity = '0.5';
+                                        }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                                     {/* Floating badge */}
-                                    <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                    <div className="absolute bottom-4 left-4 rtl:left-auto rtl:right-4 right-4 flex justify-between items-end">
                                         <div className="bg-[color:var(--brand-accent)] text-black px-4 py-2 rounded-xl text-sm font-semibold">
-                                            ⭐ 4.5 / 5 from 9000+ reviews
+                                            ⭐ 4.5 / 5 {t('events.fromReviews')}
                                         </div>
                                     </div>
                                 </div>
@@ -188,8 +197,8 @@ function EventDetailPageContent({ eventType }) {
 
                             {/* Benefits Grid */}
                             <div className="grid grid-cols-2 gap-3">
-                                {benefits.map((benefit, index) => {
-                                    const BenefitIcon = benefit.icon;
+                                {Array.isArray(benefitsItems) && benefitsItems.map((benefit, index) => {
+                                    const BenefitIcon = benefitIcons[index] || Star;
                                     return (
                                         <div
                                             key={index}
@@ -213,37 +222,21 @@ function EventDetailPageContent({ eventType }) {
             <section className="py-16 md:py-24 px-4 md:px-8 bg-[color:var(--bg-surface)]">
                 <div className="max-w-4xl mx-auto text-center">
                     <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-12">
-                        How It Works
+                        {t('events.howItWorks.title')}
                     </h2>
 
                     <div className="grid md:grid-cols-3 gap-8">
-                        <div className="space-y-4">
-                            <div className="w-12 h-12 rounded-full bg-[color:var(--brand-accent)] text-black font-display font-bold text-xl flex items-center justify-center mx-auto">
-                                1
+                        {howItWorksSteps.map((step, index) => (
+                            <div key={index} className="space-y-4">
+                                <div className="w-12 h-12 rounded-full bg-[color:var(--brand-accent)] text-black font-display font-bold text-xl flex items-center justify-center mx-auto">
+                                    {index + 1}
+                                </div>
+                                <h3 className="font-display font-semibold text-white">{step.title}</h3>
+                                <p className="text-sm text-[color:var(--text-muted)]">
+                                    {step.desc}
+                                </p>
                             </div>
-                            <h3 className="font-display font-semibold text-white">Submit Request</h3>
-                            <p className="text-sm text-[color:var(--text-muted)]">
-                                Fill out the form with your event details and requirements
-                            </p>
-                        </div>
-                        <div className="space-y-4">
-                            <div className="w-12 h-12 rounded-full bg-[color:var(--brand-accent)] text-black font-display font-bold text-xl flex items-center justify-center mx-auto">
-                                2
-                            </div>
-                            <h3 className="font-display font-semibold text-white">Get a Quote</h3>
-                            <p className="text-sm text-[color:var(--text-muted)]">
-                                Our team will contact you within 24 hours with a custom quote
-                            </p>
-                        </div>
-                        <div className="space-y-4">
-                            <div className="w-12 h-12 rounded-full bg-[color:var(--brand-accent)] text-black font-display font-bold text-xl flex items-center justify-center mx-auto">
-                                3
-                            </div>
-                            <h3 className="font-display font-semibold text-white">Enjoy!</h3>
-                            <p className="text-sm text-[color:var(--text-muted)]">
-                                Confirm your booking and prepare for an amazing experience
-                            </p>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -251,8 +244,8 @@ function EventDetailPageContent({ eventType }) {
             {/* Partners Section - Only for Corporate */}
             {eventType === 'corporate' && (
                 <PartnersSection
-                    title="Trusted By Leading Organizations"
-                    subtitle="Join hundreds of companies that have experienced our team-building programs"
+                    title={t('events.partners.title')}
+                    subtitle={t('events.partners.subtitle')}
                     variant="surface"
                 />
             )}
@@ -264,15 +257,15 @@ function EventDetailPageContent({ eventType }) {
             <section className="py-16 md:py-20 px-4 md:px-8">
                 <div className="max-w-3xl mx-auto text-center">
                     <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-4">
-                        Ready to Book Your {eventInfo.title}?
+                        {t('events.ctaTitle', { eventType: eventTitle })}
                     </h2>
                     <p className="text-[color:var(--text-muted)] mb-8">
-                        Get in touch with our events team today and let's create something unforgettable.
+                        {t('events.ctaSubtitle')}
                     </p>
                     <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                         <DialogTrigger asChild>
                             <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 px-10 rounded-xl text-lg">
-                                Request a Quote
+                                {t('events.requestQuote')}
                             </Button>
                         </DialogTrigger>
                     </Dialog>
@@ -295,4 +288,3 @@ export default function EventDetailPage({ eventType }) {
         </ErrorBoundary>
     );
 }
-

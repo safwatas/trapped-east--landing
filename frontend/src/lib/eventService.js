@@ -11,6 +11,8 @@ import { supabase } from './supabase';
 export const eventService = {
     /**
      * Submit a new event lead
+     * Structured fields (preferred_date, preferred_time, group_size) are stored 
+     * as separate columns for better querying. Remaining form data goes in form_payload.
      */
     async submitEventLead(leadData) {
         const { data, error } = await supabase
@@ -22,7 +24,13 @@ export const eventService = {
                 email: leadData.email || null,
                 branch: leadData.branch || 'New Cairo',
                 status: 'New',
+                // Structured fields for better querying
+                preferred_date: leadData.preferredDate || null,
+                preferred_time: leadData.preferredTime || null,
+                group_size: leadData.groupSize || null,
+                // Remaining form data as JSON
                 form_payload: leadData.formPayload || {},
+                // Tracking
                 utm_source: leadData.utmSource,
                 utm_campaign: leadData.utmCampaign,
                 utm_medium: leadData.utmMedium,
@@ -33,7 +41,22 @@ export const eventService = {
             .select()
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.error('[eventService] Insert error:', error);
+            throw error;
+        }
+
+        // Dev verification log
+        if (data?.id) {
+            console.log('[eventService] ✅ Event lead inserted:', {
+                id: data.id,
+                event_type: data.event_type,
+                phone: data.phone,
+                preferred_date: data.preferred_date,
+                group_size: data.group_size
+            });
+        }
+
         return data;
     },
 

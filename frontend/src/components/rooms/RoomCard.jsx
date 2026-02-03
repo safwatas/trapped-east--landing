@@ -1,16 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Users, Clock, Puzzle, Skull, Star, Percent } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 
 export default function RoomCard({ room, hasOffer = false, offerText = null }) {
+  const { t } = useTranslation();
+
   const difficultyColors = {
     'Easy': 'text-green-400',
     'Medium': 'text-[color:var(--brand-accent)]',
     'Hard': 'text-orange-400',
     'Very Hard': 'text-red-400',
     'Expert': 'text-red-500'
+  };
+
+  // Translate difficulty levels
+  const getDifficultyText = (difficulty) => {
+    const difficultyMap = {
+      'Easy': t('rooms.easy'),
+      'Medium': t('rooms.medium'),
+      'Hard': t('rooms.hard'),
+      'Expert': t('rooms.expert'),
+      'Very Hard': t('rooms.hard')
+    };
+    return difficultyMap[difficulty] || difficulty;
   };
 
   return (
@@ -25,31 +40,31 @@ export default function RoomCard({ room, hasOffer = false, offerText = null }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
         {/* Badges */}
-        <div className="absolute top-4 left-4 flex items-center gap-2">
+        <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 flex items-center gap-2">
           {room.isHorror && (
-            <Badge className="bg-red-500/20 border-red-500/30 text-red-400">
-              <Skull className="w-3 h-3 mr-1" />
+            <Badge className="bg-red-500/20 border-red-500/30 text-red-400 ltr-flex">
+              <Skull className="w-3 h-3 mr-1 rtl:mr-0 rtl:ml-1" />
               Horror
             </Badge>
           )}
           {/* Offer Badge */}
           {hasOffer && (
-            <Badge className="bg-green-500/20 border-green-500/30 text-green-400 animate-pulse">
-              <Percent className="w-3 h-3 mr-1" />
+            <Badge className="bg-green-500/20 border-green-500/30 text-green-400 animate-pulse ltr-flex">
+              <Percent className="w-3 h-3 mr-1 rtl:mr-0 rtl:ml-1" />
               {offerText || 'Offer'}
             </Badge>
           )}
         </div>
 
         {/* Rating */}
-        <div className="absolute top-4 right-4 flex items-center gap-1">
+        <div className="absolute top-4 right-4 rtl:right-auto rtl:left-4 flex items-center gap-1">
           {[...Array(room.rating || 0)].map((_, i) => (
             <Star key={i} className="w-4 h-4 fill-[color:var(--brand-accent)] text-[color:var(--brand-accent)]" />
           ))}
         </div>
 
         {/* Title overlay */}
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="absolute bottom-4 left-4 right-4 rtl:text-right">
           <p className="text-xs uppercase tracking-widest text-[color:var(--text-muted)] mb-1">
             {room.tagline}
           </p>
@@ -63,17 +78,17 @@ export default function RoomCard({ room, hasOffer = false, offerText = null }) {
       <div className="p-5 space-y-4">
         {/* Specs Row */}
         <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-[color:var(--text-muted)]">
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 ltr-flex">
             <Users className="w-4 h-4" />
-            {room.minPlayers}-{room.maxPlayers} Players
+            {room.minPlayers}-{room.maxPlayers} {t('rooms.players')}
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 ltr-flex">
             <Clock className="w-4 h-4" />
-            {room.duration} Min
+            {room.duration} {t('rooms.minutes')}
           </span>
-          <span className={`flex items-center gap-1.5 ${difficultyColors[room.difficulty] || ''}`}>
+          <span className={`flex items-center gap-1.5 ltr-flex ${difficultyColors[room.difficulty] || ''}`}>
             <Puzzle className="w-4 h-4" />
-            {room.difficulty}
+            {getDifficultyText(room.difficulty)}
           </span>
         </div>
 
@@ -89,12 +104,12 @@ export default function RoomCard({ room, hasOffer = false, offerText = null }) {
               variant="outline"
               className="w-full bg-transparent text-[color:var(--text-primary)] border-white/15 hover:border-[color:var(--brand-accent)] hover:text-[color:var(--brand-accent)] h-11 rounded-xl"
             >
-              View Details
+              {t('rooms.learnMore')}
             </Button>
           </Link>
           <Link to={`/book/${room.slug}`}>
             <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-11 px-6 rounded-xl">
-              Book
+              {t('nav.bookNow')}
             </Button>
           </Link>
         </div>

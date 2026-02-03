@@ -5,31 +5,31 @@ import React from 'react';
  * Displays corporate partner logos and optional testimonials
  */
 
-// Partner data - using placeholder/representative company logos
+// Partner data - using actual Trapped Egypt corporate partners
 const partners = [
     {
-        name: 'Vodafone',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Vodafone_icon.svg/120px-Vodafone_icon.svg.png'
+        name: 'Partner 1',
+        logo: 'https://trappedegypt.com/wp-content/uploads/2022/11/Picture15.png'
     },
     {
-        name: 'Orange',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/120px-Orange_logo.svg.png'
+        name: 'Partner 2',
+        logo: 'https://trappedegypt.com/wp-content/uploads/2022/11/Picture13.png'
     },
     {
-        name: 'Microsoft',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/120px-Microsoft_logo_%282012%29.svg.png'
+        name: 'Partner 3',
+        logo: 'https://trappedegypt.com/wp-content/uploads/2022/11/Picture27.png'
     },
     {
-        name: 'Pepsi',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Pepsi_logo_2014.svg/120px-Pepsi_logo_2014.svg.png'
+        name: 'Partner 4',
+        logo: 'https://trappedegypt.com/wp-content/uploads/2022/11/Picture20.png'
     },
     {
-        name: 'Samsung',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/120px-Samsung_Logo.svg.png'
+        name: 'Partner 5',
+        logo: 'https://trappedegypt.com/wp-content/uploads/2022/11/Picture12.png'
     },
     {
-        name: 'Dell',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dell_logo_2016.svg/120px-Dell_logo_2016.svg.png'
+        name: 'Partner 6',
+        logo: 'https://trappedegypt.com/wp-content/uploads/2022/11/Picture19.png'
     }
 ];
 
@@ -63,9 +63,13 @@ export function PartnersSection({
                         >
                             <img
                                 src={partner.logo}
-                                alt={partner.name}
-                                className="h-8 md:h-10 w-auto object-contain"
+                                alt={`${partner.name} logo`}
+                                className="h-8 md:h-10 w-auto object-contain max-w-full"
                                 loading="lazy"
+                                onError={(e) => {
+                                    // Hide broken logo images
+                                    e.target.style.display = 'none';
+                                }}
                             />
                         </div>
                     ))}

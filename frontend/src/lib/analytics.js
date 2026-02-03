@@ -9,14 +9,19 @@ export const analytics = {
      * @param {Object} params - Event properties
      */
     track(eventName, params = {}) {
+        // Get current language from localStorage
+        const currentLanguage = localStorage.getItem('lang') || 'en';
+
         // Add default params
         const enrichedParams = {
             ...params,
             currency: 'EGP',
             hostname: window.location.hostname,
             page_path: window.location.pathname,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            language: params.language || currentLanguage // Always include language
         };
+
 
         // 1. Google Tag Manager / GA4
         if (window.dataLayer) {

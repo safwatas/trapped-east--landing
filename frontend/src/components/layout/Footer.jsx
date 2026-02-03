@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Phone, Mail, MapPin, Facebook, Instagram, MessageCircle } from 'lucide-react';
 import { siteConfig, getPhoneLink, getWhatsAppLink, getEmailLink } from '../../config/site';
 
 export default function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-[color:var(--bg-surface)] border-t border-white/10">
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-12 md:py-16">
@@ -24,21 +27,23 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-display font-semibold text-[color:var(--text-primary)] mb-4">Quick Links</h4>
+            <h4 className="font-display font-semibold text-[color:var(--text-primary)] mb-4">
+              {t('footer.quickLinks')}
+            </h4>
             <ul className="space-y-3">
               <li>
                 <Link to="/rooms" className="text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors">
-                  Our Rooms
+                  {t('footer.ourRooms')}
                 </Link>
               </li>
               <li>
                 <Link to="/find-us" className="text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors">
-                  Find Us
+                  {t('footer.findUs')}
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors">
-                  Contact Us
+                  {t('footer.contactUs')}
                 </Link>
               </li>
             </ul>
@@ -46,12 +51,14 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="font-display font-semibold text-[color:var(--text-primary)] mb-4">Contact</h4>
+            <h4 className="font-display font-semibold text-[color:var(--text-primary)] mb-4">
+              {t('footer.contact')}
+            </h4>
             <ul className="space-y-3">
               <li>
                 <a
                   href={getPhoneLink()}
-                  className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
+                  className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors ltr-flex"
                 >
                   <Phone className="w-4 h-4" />
                   {siteConfig.phoneDisplay}
@@ -62,23 +69,23 @@ export default function Footer() {
                   href={getWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
+                  className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors ltr-flex"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  WhatsApp
+                  {t('contact.whatsapp')}
                 </a>
               </li>
               <li>
                 <a
                   href={getEmailLink()}
-                  className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors"
+                  className="flex items-center gap-2 text-sm text-[color:var(--text-muted)] hover:text-[color:var(--brand-accent)] transition-colors ltr-flex"
                 >
                   <Mail className="w-4 h-4" />
                   {siteConfig.email}
                 </a>
               </li>
               <li>
-                <span className="flex items-start gap-2 text-sm text-[color:var(--text-muted)]">
+                <span className="flex items-start gap-2 text-sm text-[color:var(--text-muted)] ltr-flex">
                   <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   {siteConfig.address}
                 </span>
@@ -88,10 +95,12 @@ export default function Footer() {
 
           {/* Opening Hours */}
           <div>
-            <h4 className="font-display font-semibold text-[color:var(--text-primary)] mb-4">Opening Hours</h4>
+            <h4 className="font-display font-semibold text-[color:var(--text-primary)] mb-4">
+              {t('footer.openingHours')}
+            </h4>
             <ul className="space-y-2 text-sm text-[color:var(--text-muted)]">
               <li className="flex justify-between">
-                <span>Every Day</span>
+                <span>{t('footer.everyday')}</span>
                 <span className="text-[color:var(--text-secondary)]">{siteConfig.openingHours.everyday}</span>
               </li>
             </ul>
@@ -129,7 +138,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-[color:var(--text-muted)]">
-            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+            © {new Date().getFullYear()} {siteConfig.name}. {t('footer.allRightsReserved')}
           </p>
           <p className="text-sm text-[color:var(--text-muted)]">
             {siteConfig.addressShort}

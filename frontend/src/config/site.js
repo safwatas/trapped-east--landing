@@ -31,7 +31,7 @@ export const siteConfig = {
 
     // Maps
     googleMapsUrl: 'https://www.google.com/maps/place/Trapped+Egypt+(East)/@30.0298352,31.4619737,17z/data=!4m16!1m9!3m8!1s0x14583ce7eb01906f:0xb83683269119b2ca!2sTrapped+Egypt+(East)!8m2!3d30.0298352!4d31.4619737!9m1!1b1!16s%2Fg%2F11bxdz6p9q!3m5!1s0x14583ce7eb01906f:0xb83683269119b2ca!8m2!3d30.0298352!4d31.4619737!16s%2Fg%2F11bxdz6p9q!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDEyMS4wIKXMDSoASAFQAw%3D%3D',
-    googleMapsEmbed: '2FH6+WQ قسم أول القاهرة الجديدة',
+    googleMapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3454.1234567890!2d31.4619737!3d30.0298352!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14583ce7eb01906f%3A0xb83683269119b2ca!2sTrapped%20Egypt%20(East)!5e0!3m2!1sen!2seg!4v1700000000000!5m2!1sen!2seg',
 
     // Opening Hours
     openingHours: {

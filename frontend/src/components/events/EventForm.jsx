@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -11,13 +12,171 @@ import { eventService } from '../../lib/eventService';
 import { analytics } from '../../lib/analytics';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * Get translated options for select/multiselect fields
+ * Maps field name to translation key path
+ */
+const getTranslatedOptions = (field, eventType, t) => {
+    if (!field.options || !Array.isArray(field.options)) return [];
+
+    // Map field names to their translation paths
+    const optionKeyMap = {
+        teamSize: 'eventForms.corporate.teamSizeOptions',
+        preferredTime: 'eventForms.corporate.preferredTimeOptions',
+        activityType: 'eventForms.corporate.activityTypeOptions',
+        budget: 'eventForms.corporate.budgetOptions',
+        gradeLevel: 'eventForms.school.gradeLevelOptions',
+        studentCount: 'eventForms.school.studentCountOptions',
+        guestCount: 'eventForms.birthday.guestCountOptions',
+        partyPackage: 'eventForms.birthday.partyPackageOptions',
+        additionalServices: 'eventForms.birthday.additionalServicesOptions'
+    };
+
+    const translationPath = optionKeyMap[field.name];
+
+    return field.options.map(opt => {
+        if (!opt || typeof opt !== 'object') return null;
+        const value = String(opt.value || 'unknown');
+        // Try to get translated label, fall back to original
+        const translatedLabel = translationPath ? t(`${translationPath}.${value}`, opt.label) : opt.label;
+        return {
+            value,
+            label: translatedLabel || opt.label || value
+        };
+    }).filter(Boolean);
+};
+
+/**
+ * Get translated field label
+ */
+const getFieldLabel = (field, eventType, t) => {
+    // Common fields
+    const commonFields = {
+        phone: 'eventForms.common.phone',
+        email: 'eventForms.common.email',
+        preferredDate: 'eventForms.common.preferredDate',
+        alternateDate: 'eventForms.common.alternateDate',
+        additionalNotes: 'eventForms.common.additionalNotes'
+    };
+
+    // Event-specific fields
+    const eventFields = {
+        corporate: {
+            companyName: 'eventForms.corporate.companyName',
+            contactPerson: 'eventForms.corporate.contactPerson',
+            teamSize: 'eventForms.corporate.teamSize',
+            preferredTime: 'eventForms.corporate.preferredTime',
+            activityType: 'eventForms.corporate.activityType',
+            budget: 'eventForms.corporate.budget'
+        },
+        school: {
+            schoolName: 'eventForms.school.schoolName',
+            coordinatorName: 'eventForms.school.coordinatorName',
+            gradeLevel: 'eventForms.school.gradeLevel',
+            studentCount: 'eventForms.school.studentCount',
+            chaperoneCount: 'eventForms.school.chaperoneCount'
+        },
+        birthday: {
+            parentName: 'eventForms.birthday.parentName',
+            childName: 'eventForms.birthday.childName',
+            childAge: 'eventForms.birthday.childAge',
+            guestCount: 'eventForms.birthday.guestCount',
+            partyPackage: 'eventForms.birthday.partyPackage',
+            partyDate: 'eventForms.birthday.partyDate',
+            additionalServices: 'eventForms.birthday.additionalServices'
+        }
+    };
+
+    // Check common fields first
+    if (commonFields[field.name]) {
+        return t(commonFields[field.name], field.label);
+    }
+
+    // Then event-specific
+    if (eventFields[eventType] && eventFields[eventType][field.name]) {
+        return t(eventFields[eventType][field.name], field.label);
+    }
+
+    // Fallback to original label
+    return field.label || field.name;
+};
+
+/**
+ * Get translated placeholder
+ */
+const getFieldPlaceholder = (field, eventType, t) => {
+    const placeholderMap = {
+        phone: 'eventForms.common.phonePlaceholder',
+        email: 'eventForms.common.emailPlaceholder',
+        additionalNotes: 'eventForms.common.additionalNotesPlaceholder',
+        companyName: 'eventForms.corporate.companyNamePlaceholder',
+        contactPerson: 'eventForms.corporate.contactPersonPlaceholder',
+        schoolName: 'eventForms.school.schoolNamePlaceholder',
+        coordinatorName: 'eventForms.school.coordinatorNamePlaceholder',
+        parentName: 'eventForms.birthday.parentNamePlaceholder',
+        childName: 'eventForms.birthday.childNamePlaceholder',
+        childAge: 'eventForms.birthday.childAgePlaceholder'
+    };
+
+    if (placeholderMap[field.name]) {
+        return t(placeholderMap[field.name], field.placeholder || '');
+    }
+
+    return field.placeholder || '';
+};
+
+/**
+ * Initialize form data from config fields
+ */
+const initializeFormData = (fields) => {
+    if (!fields || !Array.isArray(fields)) return {};
+
+    const initialData = {};
+    fields.forEach(field => {
+        if (!field || !field.name) return;
+
+        switch (field.type) {
+            case 'multiselect':
+                initialData[field.name] = [];
+                break;
+            case 'select':
+            case 'number':
+            default:
+                initialData[field.name] = '';
+        }
+    });
+    return initialData;
+};
+
 export default function EventForm({ eventType, config, onSuccess }) {
+    const { t, i18n } = useTranslation();
     const [searchParams] = useSearchParams();
-    const [formData, setFormData] = useState({});
+
+    // Initialize form data with proper defaults
+    const initialFormData = useMemo(() =>
+        initializeFormData(config?.fields),
+        [config?.fields]
+    );
+
+    const [formData, setFormData] = useState(initialFormData);
     const [multiSelectValues, setMultiSelectValues] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', 'error'
+    const [submitStatus, setSubmitStatus] = useState(null);
+    const [submittedRefId, setSubmittedRefId] = useState(null);
     const [errors, setErrors] = useState({});
+
+    // Defensive check - ensure config exists
+    if (!config || !config.fields || !Array.isArray(config.fields)) {
+        return (
+            <div className="text-center py-12 px-6">
+                <div className="flex items-center justify-center gap-2 text-red-400 mb-4">
+                    <AlertCircle className="w-5 h-5" />
+                    <span>{t('eventForms.errors.configMissing')}</span>
+                </div>
+                <p className="text-[color:var(--text-muted)]">{t('eventForms.errors.contactSupport')}</p>
+            </div>
+        );
+    }
 
     const handleChange = (name, value) => {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -41,24 +200,29 @@ export default function EventForm({ eventType, config, onSuccess }) {
         const newErrors = {};
 
         config.fields.forEach(field => {
+            if (!field || !field.name) return;
+
             if (field.required) {
                 const value = formData[field.name];
                 if (!value || (typeof value === 'string' && !value.trim())) {
-                    newErrors[field.name] = `${field.label} is required`;
+                    const label = getFieldLabel(field, eventType, t);
+                    newErrors[field.name] = t('eventForms.errors.required', { field: label });
                 }
             }
 
             // Email validation
             if (field.type === 'email' && formData[field.name]) {
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData[field.name])) {
-                    newErrors[field.name] = 'Please enter a valid email';
+                const emailValue = String(formData[field.name] || '').trim();
+                if (emailValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+                    newErrors[field.name] = t('eventForms.errors.invalidEmail');
                 }
             }
 
             // Phone validation
             if (field.type === 'tel' && formData[field.name]) {
-                if (!/^\+?[0-9\s]{10,15}$/.test(formData[field.name].replace(/\s/g, ''))) {
-                    newErrors[field.name] = 'Please enter a valid phone number';
+                const phoneValue = String(formData[field.name] || '').replace(/\s/g, '');
+                if (phoneValue && !/^\+?[0-9]{10,15}$/.test(phoneValue)) {
+                    newErrors[field.name] = t('eventForms.errors.invalidPhone');
                 }
             }
         });
@@ -78,44 +242,83 @@ export default function EventForm({ eventType, config, onSuccess }) {
         try {
             const eventId = uuidv4();
 
-            // Build form payload with all answers
-            const formPayload = {
-                ...formData,
+            // Build form payload
+            const fullFormData = {
                 ...Object.fromEntries(
-                    Object.entries(multiSelectValues).map(([k, v]) => [k, v])
+                    Object.entries(formData).map(([k, v]) => [k, v !== undefined && v !== null ? v : ''])
+                ),
+                ...Object.fromEntries(
+                    Object.entries(multiSelectValues).map(([k, v]) => [k, Array.isArray(v) ? v : []])
                 )
             };
 
             // Extract name and phone from form data
-            const nameField = config.fields.find(f =>
+            const nameField = config?.fields?.find(f =>
                 f.name === 'contactPerson' ||
                 f.name === 'coordinatorName' ||
                 f.name === 'parentName'
             );
-            const name = formData[nameField?.name] || formData.name || '';
+            const name = (nameField?.name && formData[nameField.name]) || formData.name || '';
+            const phone = formData.phone || '';
 
-            await eventService.submitEventLead({
-                eventType,
-                name,
-                phone: formData.phone,
-                email: formData.email,
+            if (!phone) {
+                throw new Error('Phone number is required');
+            }
+
+            // Extract structured fields
+            const preferredDate = formData.preferredDate || formData.partyDate || formData.alternateDate || null;
+            const preferredTime = formData.preferredTime || null;
+            const groupSize = formData.teamSize || formData.studentCount || formData.guestCount || null;
+
+            // Remove extracted fields from payload
+            const excludeFields = ['phone', 'email', 'preferredDate', 'partyDate', 'alternateDate', 'preferredTime', 'teamSize', 'studentCount', 'guestCount'];
+            const formPayload = Object.fromEntries(
+                Object.entries(fullFormData).filter(([key]) => !excludeFields.includes(key))
+            );
+            if (nameField?.name) {
+                delete formPayload[nameField.name];
+            }
+
+            const result = await eventService.submitEventLead({
+                eventType: eventType || 'unknown',
+                name: name || 'Not provided',
+                phone: phone,
+                email: formData.email || null,
                 branch: 'New Cairo',
-                formPayload,
-                utmSource: searchParams.get('utm_source'),
-                utmCampaign: searchParams.get('utm_campaign'),
-                utmMedium: searchParams.get('utm_medium'),
-                utmContent: searchParams.get('utm_content'),
-                fbclid: searchParams.get('fbclid'),
+                preferredDate,
+                preferredTime,
+                groupSize,
+                formPayload: formPayload || {},
+                language: i18n.language, // Add language to lead data
+                utmSource: searchParams.get('utm_source') || null,
+                utmCampaign: searchParams.get('utm_campaign') || null,
+                utmMedium: searchParams.get('utm_medium') || null,
+                utmContent: searchParams.get('utm_content') || null,
+                fbclid: searchParams.get('fbclid') || null,
                 eventId
             });
 
-            // Track submission
-            analytics.track('SubmitEventLead', {
-                event_type: eventType,
-                branch: 'New Cairo',
-                group_size: formData.teamSize || formData.studentCount || formData.guestCount,
-                event_id: eventId
-            });
+            if (result?.id) {
+                console.log('[EventForm] ✅ Lead submitted successfully:', {
+                    rowId: result.id,
+                    eventId,
+                    eventType,
+                    phone,
+                    language: i18n.language
+                });
+                setSubmittedRefId(result.id);
+            }
+
+            // Track submission with language
+            if (analytics && analytics.track) {
+                analytics.track('SubmitEventLead', {
+                    event_type: eventType || 'unknown',
+                    branch: 'New Cairo',
+                    group_size: groupSize,
+                    event_id: eventId,
+                    language: i18n.language
+                });
+            }
 
             setSubmitStatus('success');
             if (onSuccess) onSuccess();
@@ -134,16 +337,32 @@ export default function EventForm({ eventType, config, onSuccess }) {
                     <CheckCircle className="w-8 h-8 text-green-400" />
                 </div>
                 <h3 className="font-display text-2xl font-bold text-white mb-3">
-                    Thank You!
+                    {t('eventForms.success.title')}
                 </h3>
                 <p className="text-[color:var(--text-muted)] max-w-md mx-auto">
-                    Our team will contact you shortly by phone or WhatsApp to discuss your event details.
+                    {t('eventForms.success.message')}
                 </p>
+                {submittedRefId && process.env.NODE_ENV === 'development' && (
+                    <p className="text-xs text-[color:var(--text-muted)] mt-4 font-mono">
+                        Ref: {submittedRefId}
+                    </p>
+                )}
             </div>
         );
     }
 
     const renderField = (field) => {
+        if (!field || !field.name || !field.type) {
+            return (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4 inline mr-2 rtl:mr-0 rtl:ml-2" />
+                    {t('eventForms.errors.configMissing')}
+                </div>
+            );
+        }
+
+        const placeholder = getFieldPlaceholder(field, eventType, t);
+
         switch (field.type) {
             case 'text':
             case 'email':
@@ -154,11 +373,10 @@ export default function EventForm({ eventType, config, onSuccess }) {
                         type={field.type}
                         value={formData[field.name] || ''}
                         onChange={(e) => handleChange(field.name, e.target.value)}
-                        placeholder={field.placeholder}
+                        placeholder={placeholder}
                         min={field.min}
                         max={field.max}
-                        className={`h-12 rounded-xl bg-black/30 border-white/10 text-white placeholder:text-white/35 ${errors[field.name] ? 'border-red-500' : ''
-                            }`}
+                        className={`h-12 rounded-xl bg-black/30 border-white/10 text-white placeholder:text-white/35 ${errors[field.name] ? 'border-red-500' : ''}`}
                     />
                 );
 
@@ -168,36 +386,61 @@ export default function EventForm({ eventType, config, onSuccess }) {
                         type="date"
                         value={formData[field.name] || ''}
                         onChange={(e) => handleChange(field.name, e.target.value)}
-                        className={`h-12 rounded-xl bg-black/30 border-white/10 text-white ${errors[field.name] ? 'border-red-500' : ''
-                            }`}
+                        min={new Date().toISOString().split('T')[0]}
+                        className={`h-12 rounded-xl bg-black/30 border-white/10 text-white ${errors[field.name] ? 'border-red-500' : ''}`}
+                        style={{ colorScheme: 'dark' }}
                     />
                 );
 
-            case 'select':
+            case 'select': {
+                const safeOptions = getTranslatedOptions(field, eventType, t);
+
+                if (safeOptions.length === 0) {
+                    return (
+                        <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm">
+                            No options configured for this field
+                        </div>
+                    );
+                }
+
                 return (
                     <Select
                         value={formData[field.name] || ''}
                         onValueChange={(value) => handleChange(field.name, value)}
                     >
-                        <SelectTrigger className={`h-12 rounded-xl bg-black/30 border-white/10 text-white ${errors[field.name] ? 'border-red-500' : ''
-                            }`}>
-                            <SelectValue placeholder="Select an option" />
+                        <SelectTrigger className={`h-12 rounded-xl bg-black/30 border-white/10 text-white ${errors[field.name] ? 'border-red-500' : ''}`}>
+                            <SelectValue placeholder={t('eventForms.common.selectOption')} />
                         </SelectTrigger>
                         <SelectContent className="bg-[color:var(--bg-elevated)] border-white/10">
-                            {field.options.map((option) => (
-                                <SelectItem key={option.value} value={option.value} className="text-white">
+                            {safeOptions.map((option) => (
+                                <SelectItem
+                                    key={option.value}
+                                    value={option.value}
+                                    className="text-white"
+                                >
                                     {option.label}
                                 </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 );
+            }
 
-            case 'multiselect':
+            case 'multiselect': {
+                const safeOptions = getTranslatedOptions(field, eventType, t);
+
+                if (safeOptions.length === 0) {
+                    return (
+                        <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm">
+                            No options configured for this field
+                        </div>
+                    );
+                }
+
                 return (
                     <div className="space-y-2">
-                        {field.options.map((option) => (
-                            <div key={option.value} className="flex items-center space-x-3">
+                        {safeOptions.map((option) => (
+                            <div key={option.value} className="flex items-center gap-3">
                                 <Checkbox
                                     id={`${field.name}-${option.value}`}
                                     checked={(multiSelectValues[field.name] || []).includes(option.value)}
@@ -216,60 +459,70 @@ export default function EventForm({ eventType, config, onSuccess }) {
                         ))}
                     </div>
                 );
+            }
 
             case 'textarea':
                 return (
                     <Textarea
                         value={formData[field.name] || ''}
                         onChange={(e) => handleChange(field.name, e.target.value)}
-                        placeholder={field.placeholder}
+                        placeholder={placeholder}
                         rows={4}
-                        className={`rounded-xl bg-black/30 border-white/10 text-white placeholder:text-white/35 resize-none ${errors[field.name] ? 'border-red-500' : ''
-                            }`}
+                        className={`rounded-xl bg-black/30 border-white/10 text-white placeholder:text-white/35 resize-none ${errors[field.name] ? 'border-red-500' : ''}`}
                     />
                 );
 
             default:
-                return null;
+                return (
+                    <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm">
+                        <AlertCircle className="w-4 h-4 inline mr-2 rtl:mr-0 rtl:ml-2" />
+                        Unknown field type: {field.type}
+                    </div>
+                );
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-5">
-            {config.fields.map((field) => (
-                <div key={field.name} className="space-y-2">
-                    <Label className="text-white flex items-center gap-1">
-                        {field.label}
-                        {field.required && <span className="text-red-400">*</span>}
-                    </Label>
-                    {renderField(field)}
-                    {errors[field.name] && (
-                        <p className="text-sm text-red-400 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" />
-                            {errors[field.name]}
-                        </p>
-                    )}
-                </div>
-            ))}
+            {config.fields.map((field, index) => {
+                if (!field || !field.name) return null;
+                const label = getFieldLabel(field, eventType, t);
+
+                return (
+                    <div key={field.name || index} className="space-y-2">
+                        <Label className="text-white flex items-center gap-1">
+                            {label}
+                            {field.required && <span className="text-red-400">*</span>}
+                        </Label>
+                        {renderField(field)}
+                        {errors[field.name] && (
+                            <p className="text-sm text-red-400 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {errors[field.name]}
+                            </p>
+                        )}
+                    </div>
+                );
+            })}
 
             {submitStatus === 'error' && (
                 <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-                    Something went wrong. Please try again or contact us directly.
+                    {t('eventForms.errors.submitFailed')}
                 </div>
             )}
 
             <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 rounded-xl text-lg mt-6"
+                className="w-full bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 rounded-xl text-lg mt-6 ltr-flex"
             >
                 {isSubmitting ? (
                     <>
-                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                        Submitting...
+                        <Loader2 className="w-5 h-5 animate-spin mr-2 rtl:mr-0 rtl:ml-2" />
+                        {t('eventForms.common.submitting')}
                     </>
                 ) : (
-                    'Submit Request'
+                    t('eventForms.common.submit')
                 )}
             </Button>
         </form>
