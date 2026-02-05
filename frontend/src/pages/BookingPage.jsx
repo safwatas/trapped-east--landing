@@ -223,7 +223,6 @@ export default function BookingPage() {
         customer_phone: customerPhone,
         customer_email: customerEmail || null,
         status: 'pending',
-        language: i18n.language,
         utm_source: searchParams.get('utm_source'),
         utm_medium: searchParams.get('utm_medium'),
         utm_campaign: searchParams.get('utm_campaign'),

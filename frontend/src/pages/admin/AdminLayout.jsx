@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   DoorOpen,
   Calendar,
+  CalendarDays,
   Users,
   Tag,
   Settings,
@@ -20,6 +21,7 @@ import { siteConfig } from '../../config/site';
 
 const navItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+  { name: 'Calendar', path: '/admin/calendar', icon: CalendarDays },
   { name: 'Bookings', path: '/admin/bookings', icon: Calendar },
   { name: 'Events', path: '/admin/events', icon: PartyPopper },
   { name: 'Rooms', path: '/admin/rooms', icon: DoorOpen },

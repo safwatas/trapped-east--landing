@@ -151,6 +151,74 @@ ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 ALTER TABLE promo_codes 
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+---
+
+### Step 6: Create Event Leads Table (REQUIRED for Special Events)
+
+**⚠️ IMPORTANT:** This step is required for the special events forms (Birthdays, Corporate, School Trips) to work!
+
+1. **Create a new query**
+   - Click **"+ New query"** again
+
+2. **Copy and paste this SQL script:**
+
+```sql
+-- Create the event_leads table for special event inquiries
+CREATE TABLE IF NOT EXISTS event_leads (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    event_type TEXT NOT NULL,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT,
+    branch TEXT DEFAULT 'New Cairo',
+    status TEXT DEFAULT 'New',
+    preferred_date DATE,
+    preferred_time TEXT,
+    group_size TEXT,
+    form_payload JSONB DEFAULT '{}',
+    internal_notes TEXT,
+    utm_source TEXT,
+    utm_campaign TEXT,
+    utm_medium TEXT,
+    utm_content TEXT,
+    fbclid TEXT,
+    event_id TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS idx_event_leads_event_type ON event_leads(event_type);
+CREATE INDEX IF NOT EXISTS idx_event_leads_status ON event_leads(status);
+CREATE INDEX IF NOT EXISTS idx_event_leads_created_at ON event_leads(created_at DESC);
+
+-- Enable RLS and set policies
+ALTER TABLE event_leads ENABLE ROW LEVEL SECURITY;
+
+-- Allow website visitors to submit leads
+CREATE POLICY "Allow public insert for event leads"
+    ON event_leads FOR INSERT TO anon, authenticated
+    WITH CHECK (true);
+
+-- Allow admin to view leads
+CREATE POLICY "Allow authenticated select for event leads"
+    ON event_leads FOR SELECT TO authenticated
+    USING (true);
+
+-- Allow admin to update leads
+CREATE POLICY "Allow authenticated update for event leads"
+    ON event_leads FOR UPDATE TO authenticated
+    USING (true) WITH CHECK (true);
+```
+
+3. **Run the query**
+   - Click the green **"Run"** button
+   - You should see a success message
+
+4. **Test the table** (optional):
+```sql
+-- Verify table exists
+SELECT * FROM event_leads LIMIT 5;
 ```
 
 ---

@@ -60,6 +60,36 @@ export const bookingService = {
     },
 
     /**
+     * Fetches all bookings for a specific date (for calendar view).
+     */
+    async getBookingsForDate(date) {
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('*, rooms(name, slug)')
+            .eq('booking_date', date)
+            .order('time_slot')
+
+        if (error) throw error
+        return data
+    },
+
+    /**
+     * Fetches all bookings for a date range (for calendar view).
+     */
+    async getBookingsForDateRange(startDate, endDate) {
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('*, rooms(name, slug)')
+            .gte('booking_date', startDate)
+            .lte('booking_date', endDate)
+            .order('booking_date')
+            .order('time_slot')
+
+        if (error) throw error
+        return data
+    },
+
+    /**
      * Validates a promo code.
      */
     async validatePromoCode(code, playerCount) {

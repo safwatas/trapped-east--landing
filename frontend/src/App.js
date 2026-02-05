@@ -65,6 +65,7 @@ import AdminRooms from "./pages/admin/AdminRooms";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminEvents from "./pages/admin/AdminEvents";
+import AdminCalendar from "./pages/admin/AdminCalendar";
 
 function App() {
   return (
@@ -92,6 +93,7 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="calendar" element={<AdminCalendar />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="rooms" element={<AdminRooms />} />
             <Route path="pricing" element={<AdminPricing />} />

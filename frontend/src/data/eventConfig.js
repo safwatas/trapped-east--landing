@@ -322,10 +322,25 @@ export const eventFormConfig = {
 
 export const eventTypes = [
     {
+        id: 'birthday',
+        title: 'Birthday Parties',
+        shortDescription: 'Create unforgettable memories with a thrilling escape room birthday celebration.',
+        image: '/images/events/birthday.png',
+        bullets: [
+            'Exclusive party packages',
+            'Private party area included',
+            'Customizable themes',
+            'Birthday cake & decoration add-ons',
+            'Photo opportunities & souvenirs'
+        ],
+        color: 'from-purple-500/20 to-purple-600/10',
+        icon: 'cake'
+    },
+    {
         id: 'corporate',
         title: 'Corporate Team Building',
         shortDescription: 'Boost team morale and collaboration with immersive escape room challenges.',
-        image: 'https://trappedegypt.com/wp-content/uploads/2022/11/308395774_10158401824506887_3821479258953938995_n.jpg',
+        image: '/images/events/corporate.jpg',
         bullets: [
             'Custom packages for teams of any size',
             'Private venue booking available',
@@ -340,7 +355,7 @@ export const eventTypes = [
         id: 'school',
         title: 'School Trips',
         shortDescription: 'Educational adventures that develop problem-solving and teamwork skills.',
-        image: 'https://trappedegypt.com/wp-content/uploads/2022/11/301480900_5402541189825088_5992069561772376960_n.jpg',
+        image: '/images/events/school-trips.png',
         bullets: [
             'Age-appropriate room selection',
             'Educational learning outcomes',
@@ -350,20 +365,5 @@ export const eventTypes = [
         ],
         color: 'from-green-500/20 to-green-600/10',
         icon: 'graduation-cap'
-    },
-    {
-        id: 'birthday',
-        title: 'Birthday Parties',
-        shortDescription: 'Create unforgettable memories with a thrilling escape room birthday celebration.',
-        image: 'https://trappedegypt.com/wp-content/uploads/2022/11/12747901_1728982850678493_8234344267627891082_o.jpg.webp',
-        bullets: [
-            'Exclusive party packages',
-            'Private party area included',
-            'Customizable themes',
-            'Birthday cake & decoration add-ons',
-            'Photo opportunities & souvenirs'
-        ],
-        color: 'from-purple-500/20 to-purple-600/10',
-        icon: 'cake'
     }
 ];

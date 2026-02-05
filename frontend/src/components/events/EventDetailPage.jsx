@@ -18,11 +18,11 @@ const iconMap = {
     'cake': Cake
 };
 
-// Hero images for each event type - using Trapped Egypt brand images
+// Hero images for each event type - using local images
 const heroImages = {
-    corporate: 'https://trappedegypt.com/wp-content/uploads/2022/11/308395774_10158401824506887_3821479258953938995_n.jpg',
-    school: 'https://trappedegypt.com/wp-content/uploads/2022/11/301480900_5402541189825088_5992069561772376960_n.jpg',
-    birthday: 'https://trappedegypt.com/wp-content/uploads/2022/11/12747901_1728982850678493_8334344267627891082_o.jpg.webp'
+    corporate: '/images/events/corporate.jpg',
+    school: '/images/events/school-trips.png',
+    birthday: '/images/events/birthday.png'
 };
 
 function EventDetailPageContent({ eventType }) {
