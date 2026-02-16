@@ -1,0 +1,16 @@
+{
+  "status": "init",
+  "executionArgs": {
+    "projectName": "trapped-east--landing",
+    "projectPath": "/Users/safwatas/Documents/GitHub/trapped-east--landing",
+    "testIds": [],
+    "additionalInstruction": "Focus on the public-facing pages: Home, Rooms, Room Detail, Booking flow, Events, Contact, and Find Us pages. Test navigation, responsiveness, and key user flows like booking an escape room.",
+    "envs": {
+      "API_KEY": "sk-user-78ZMqccIxwL6DG7yXtBIemihOOb6br_--iMcF9lCbSYYaHfGJZ5oqQBGWGxzNaEkc8gv1ytod0NaS13Cy156iOLvOyysbPlyib6uk2BtJYNcdl6EgkFAEziGExDuL0YHaK4"
+    }
+  },
+  "scope": "codebase",
+  "type": "frontend",
+  "localEndpoint": "http://localhost:3000/",
+  "serverPort": 57701
+}

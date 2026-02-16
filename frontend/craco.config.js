@@ -32,6 +32,9 @@ if (config.enableHealthCheck) {
   healthPluginInstance = new WebpackHealthPlugin();
 }
 
+// Load external API middleware for local development
+const setupExternalCustomersAPI = require("./plugins/external-api/customers-middleware");
+
 const webpackConfig = {
   eslint: {
     configure: {
@@ -115,6 +118,9 @@ webpackConfig.devServer = (devServerConfig) => {
       return middlewares;
     };
   }
+
+  // Setup external customers API middleware for local development
+  devServerConfig = setupExternalCustomersAPI(devServerConfig);
 
   return devServerConfig;
 };

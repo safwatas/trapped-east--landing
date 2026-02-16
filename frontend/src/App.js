@@ -66,6 +66,7 @@ import AdminPricing from "./pages/admin/AdminPricing";
 import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminCalendar from "./pages/admin/AdminCalendar";
+import AdminExternalCustomers from "./pages/admin/AdminExternalCustomers";
 
 function App() {
   return (
@@ -98,6 +99,7 @@ function App() {
             <Route path="rooms" element={<AdminRooms />} />
             <Route path="pricing" element={<AdminPricing />} />
             <Route path="customers" element={<AdminCustomers />} />
+            <Route path="external-customers" element={<AdminExternalCustomers />} />
             <Route path="events" element={<AdminEvents />} />
           </Route>
         </Routes>
