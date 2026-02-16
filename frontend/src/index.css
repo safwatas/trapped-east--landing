@@ -3,6 +3,106 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
+
+/* RTL Support */
+html[dir="rtl"] {
+  font-family: 'Noto Sans Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+html[dir="rtl"] .font-display {
+  font-family: 'Noto Sans Arabic', 'Sora', 'Inter', sans-serif;
+}
+
+/* RTL-aware flex direction */
+html[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+/* Keep certain flex layouts LTR (icons, buttons with icons) */
+html[dir="rtl"] .ltr-flex {
+  flex-direction: row !important;
+}
+
+/* RTL margin/padding adjustments */
+html[dir="rtl"] .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/* RTL text alignment */
+html[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+html[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* RTL border adjustments */
+html[dir="rtl"] .border-l {
+  border-left: none;
+  border-right-width: 1px;
+}
+
+html[dir="rtl"] .border-l-2 {
+  border-left: none;
+  border-right-width: 2px;
+}
+
+html[dir="rtl"] .border-r {
+  border-right: none;
+  border-left-width: 1px;
+}
+
+/* RTL spacing for icons - keep icons readable but flip spacing */
+html[dir="rtl"] .gap-2 > svg:first-child,
+html[dir="rtl"] .gap-2 > .lucide:first-child {
+  order: 1;
+}
+
+/* RTL-aware sheet/drawer positioning */
+html[dir="rtl"] [data-side="right"] {
+  left: 0;
+  right: auto;
+}
+
+html[dir="rtl"] [data-side="left"] {
+  right: 0;
+  left: auto;
+}
+
+/* Ensure icons stay visually correct in RTL */
+html[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Keep arrows pointing correctly in RTL */
+html[dir="rtl"] .lucide-arrow-right {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .lucide-arrow-left {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .lucide-chevron-right {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .lucide-chevron-left {
+  transform: scaleX(-1);
+}
+
 
 :root {
   /* Surfaces */

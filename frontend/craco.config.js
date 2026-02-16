@@ -32,6 +32,9 @@ if (config.enableHealthCheck) {
   healthPluginInstance = new WebpackHealthPlugin();
 }
 
+// Load external API middleware for local development
+const setupExternalCustomersAPI = require("./plugins/external-api/customers-middleware");
+
 const webpackConfig = {
   eslint: {
     configure: {
@@ -49,15 +52,15 @@ const webpackConfig = {
     configure: (webpackConfig) => {
 
       // Add ignored patterns to reduce watched directories
-        webpackConfig.watchOptions = {
-          ...webpackConfig.watchOptions,
-          ignored: [
-            '**/node_modules/**',
-            '**/.git/**',
-            '**/build/**',
-            '**/dist/**',
-            '**/coverage/**',
-            '**/public/**',
+      webpackConfig.watchOptions = {
+        ...webpackConfig.watchOptions,
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/build/**',
+          '**/dist/**',
+          '**/coverage/**',
+          '**/public/**',
         ],
       };
 
@@ -78,6 +81,22 @@ if (config.enableVisualEdits && babelMetadataPlugin) {
 }
 
 webpackConfig.devServer = (devServerConfig) => {
+  // Filter out ResizeObserver errors from the error overlay
+  devServerConfig.client = {
+    ...devServerConfig.client,
+    overlay: {
+      errors: true,
+      warnings: false,
+      runtimeErrors: (error) => {
+        // Don't show overlay for ResizeObserver errors
+        if (error && error.message && error.message.includes('ResizeObserver')) {
+          return false;
+        }
+        return true;
+      },
+    },
+  };
+
   // Apply visual edits dev server setup only if enabled
   if (config.enableVisualEdits && setupDevServer) {
     devServerConfig = setupDevServer(devServerConfig);
@@ -99,6 +118,9 @@ webpackConfig.devServer = (devServerConfig) => {
       return middlewares;
     };
   }
+
+  // Setup external customers API middleware for local development
+  devServerConfig = setupExternalCustomersAPI(devServerConfig);
 
   return devServerConfig;
 };

@@ -60,6 +60,36 @@ export const bookingService = {
     },
 
     /**
+     * Fetches all bookings for a specific date (for calendar view).
+     */
+    async getBookingsForDate(date) {
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('*, rooms(name, slug)')
+            .eq('booking_date', date)
+            .order('time_slot')
+
+        if (error) throw error
+        return data
+    },
+
+    /**
+     * Fetches all bookings for a date range (for calendar view).
+     */
+    async getBookingsForDateRange(startDate, endDate) {
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('*, rooms(name, slug)')
+            .gte('booking_date', startDate)
+            .lte('booking_date', endDate)
+            .order('booking_date')
+            .order('time_slot')
+
+        if (error) throw error
+        return data
+    },
+
+    /**
      * Validates a promo code.
      */
     async validatePromoCode(code, playerCount) {
@@ -102,7 +132,7 @@ export const bookingService = {
     async getAllBookings() {
         const { data, error } = await supabase
             .from('bookings')
-            .select('*, rooms(name), booking_notes(note)')
+            .select('*, rooms(name)')
             .order('created_at', { ascending: false })
 
         if (error) throw error
@@ -127,10 +157,11 @@ export const bookingService = {
      * Update internal notes for a booking.
      */
     async updateBookingNotes(bookingId, note) {
-        // We use the booking_notes table for notes
+        // Update the internal_notes column directly on the booking
         const { data, error } = await supabase
-            .from('booking_notes')
-            .upsert({ booking_id: bookingId, note }, { onConflict: 'booking_id' })
+            .from('bookings')
+            .update({ internal_notes: note, updated_at: new Date().toISOString() })
+            .eq('id', bookingId)
             .select()
 
         if (error) throw error
@@ -171,10 +202,10 @@ export const bookingService = {
         const { data, error } = await supabase
             .from('promo_codes')
             .select('*')
-            .order('created_at', { ascending: false })
+            .order('code')
 
         if (error) throw error
-        return data
+        return data || []
     },
 
     /**

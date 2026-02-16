@@ -1,0 +1,695 @@
+[
+  {
+    "id": "TC001",
+    "title": "Home Page Render and Responsiveness",
+    "description": "Verify the Home page loads correctly, displays the hero carousel, featured room cards, the how-it-works section, and is responsive on desktop and mobile devices.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Home page URL"
+      },
+      {
+        "type": "assertion",
+        "description": "Check the hero background carousel is present and auto-playing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify featured room cards are displayed with images and relevant info"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the how-it-works section is visible with clear steps"
+      },
+      {
+        "type": "action",
+        "description": "Resize browser viewport to mobile dimensions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that all page elements reflow correctly and content remains accessible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Rooms Page Listing and Filter by Availability",
+    "description": "Check that the Rooms page displays all active escape rooms with offer badges and allows filtering by availability accurately.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Rooms page URL"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a grid of all active rooms is displayed, each with image, name, difficulty, and offer badge if applicable"
+      },
+      {
+        "type": "action",
+        "description": "Apply filter to display only available rooms for a selected date"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm that only rooms available on that date are shown"
+      },
+      {
+        "type": "action",
+        "description": "Clear filter and verify the full list is restored"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Room Detail Page Content and Booking Link",
+    "description": "Validate the Room Detail page shows correct information including images, difficulty, player count, duration, pricing, and has a working booking link.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to a Room Detail page using a valid room slug"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the presence of room images gallery"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that difficulty, player count, duration, and pricing details are correctly shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the booking button or link is visible and routing to the correct booking page"
+      },
+      {
+        "type": "action",
+        "description": "Click the booking link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify navigation to the multi-step booking flow page for the selected room"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Booking Flow: Date and Time Slot Selection Validation",
+    "description": "Ensure users can select a booking date and time slot with real-time availability checks preventing overbooking and dynamic updates of available slots.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Booking page for a given room"
+      },
+      {
+        "type": "action",
+        "description": "Select a past date from the calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that selecting a past date is blocked or shows an error"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid future date with known availability"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that available time slots load dynamically for the chosen date"
+      },
+      {
+        "type": "action",
+        "description": "Select a time slot which has remaining capacity"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm selection is accepted"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to select an overbooked or fully booked time slot"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the overbooked slot is disabled or an error message is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Booking Flow: Player Count Limits Validation",
+    "description": "Verify that users can specify the player count within allowed limits for the selected escape room during booking.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to Booking page and select a valid date and time slot"
+      },
+      {
+        "type": "action",
+        "description": "Enter a player count below minimum allowed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation error is shown for too few players"
+      },
+      {
+        "type": "action",
+        "description": "Enter a player count above maximum allowed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation error is shown for too many players"
+      },
+      {
+        "type": "action",
+        "description": "Enter a player count within allowed range"
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure no validation errors and player count is accepted"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Booking Flow: Customer Information Form Validation",
+    "description": "Validate customer information form fields including name, email, and phone enforce required constraints and proper data formats.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to Booking page and reach the customer info step"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form with empty required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation errors are displayed for missing name, email, or phone"
+      },
+      {
+        "type": "action",
+        "description": "Input invalid email format"
+      },
+      {
+        "type": "assertion",
+        "description": "Check validation error for invalid email"
+      },
+      {
+        "type": "action",
+        "description": "Input invalid phone number format"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation error for invalid phone format"
+      },
+      {
+        "type": "action",
+        "description": "Correct all fields with valid data"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm form accepts the data without errors"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Booking Flow: Promo Code Application and Validation",
+    "description": "Test that promo codes can be applied during booking with correct validation and changes to pricing based on code validity and rules.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Proceed to promo code input step in the Booking flow"
+      },
+      {
+        "type": "action",
+        "description": "Enter an invalid promo code"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that an appropriate error message is shown and price is unchanged"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid promo code that applies a discount"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm price updates correctly reflecting the promo code discount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the promo code and remove it"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify price returns to original amount"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Booking Submission: Successful Booking and Confirmation Display",
+    "description": "Verify that a completed booking submits successfully, persists, and the Confirmation page displays booking details and contact options.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Complete all booking steps with valid inputs including date, time, players, customer info, and promo code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the booking"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking is accepted and user is redirected to the confirmation page"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that booking details including room, date, time, players, total price, and promo code are correctly displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm presence of contact options (phone, email, etc.) on confirmation page"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Events Page Content and Navigation",
+    "description": "Ensure the Events page displays cards for Corporate, School Trips, and Birthday events with relevant information.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Events page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify presence of event cards for Corporate, School Trips, and Birthday categories"
+      },
+      {
+        "type": "assertion",
+        "description": "Check each card shows a title, description, and a call to action or contact info"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Contact Page: Form Validation and Submission",
+    "description": "Validate that the Contact page form requires name, valid email, phone, and message fields and displays success notifications upon submission.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Contact page"
+      },
+      {
+        "type": "action",
+        "description": "Submit the contact form with all fields empty"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation errors for required fields are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Enter invalid email format and submit"
+      },
+      {
+        "type": "assertion",
+        "description": "Check validation error displayed for email"
+      },
+      {
+        "type": "action",
+        "description": "Fill all fields correctly and submit"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm form submits successfully and a toast notification is shown"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Find Us Page: Map, Address, and Social Links",
+    "description": "Check that the Find Us page embeds Google Maps correctly, displays the physical address, opening hours, and social media links.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Find Us page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the embedded Google Maps is visible and centered correctly"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the physical address and opening hours are displayed accurately"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that social media icons/links are present and clickable"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Language Switching and Layout Direction",
+    "description": "Validate that switching between English and Arabic languages updates UI text accordingly and changes layout direction between LTR and RTL without UI breakage.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Locate and trigger the language switcher to Arabic"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all visible UI text elements update to Arabic translations"
+      },
+      {
+        "type": "assertion",
+        "description": "Check page layout changes to right-to-left (RTL) direction"
+      },
+      {
+        "type": "action",
+        "description": "Switch back to English"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI text returns to English and layout direction is left-to-right (LTR)"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm no content or UI is broken during language switch"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Admin Login Security and Access Control",
+    "description": "Test the admin login page enforces Supabase email/password authentication and restricts access to admin routes without valid login.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /admin/login page"
+      },
+      {
+        "type": "action",
+        "description": "Attempt login with invalid credentials"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login fails and appropriate error message is shown"
+      },
+      {
+        "type": "action",
+        "description": "Login with valid admin credentials"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm login success and redirection to /admin/dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access /admin/dashboard without logging in"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied or redirected to login page"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Admin Dashboard: Booking Statistics and Charts Display",
+    "description": "Verify that the Admin Dashboard page displays accurate booking statistics and renders charts properly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and navigate to /admin/dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking statistics (count, revenue, etc.) are visible and accurate based on data"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that charts render correctly without visual errors"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Admin Rooms Management: Edit and Deactivate Room",
+    "description": "Test that admin can edit room details and deactivate rooms via the Admin Rooms page with updates reflected on the public Rooms page.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and navigate to /admin/rooms"
+      },
+      {
+        "type": "action",
+        "description": "Select a room and modify details such as name, difficulty, or pricing"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changes persist and are reflected in the database"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the same room"
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure the room no longer appears on the public Rooms page"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Admin Pricing and Promo Codes: Create, Update, and Validation",
+    "description": "Ensure admins can manage pricing tiers and promo codes, including creating, editing, and deleting, with proper validation.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and navigate to /admin/pricing"
+      },
+      {
+        "type": "action",
+        "description": "Create a new pricing tier with valid input"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new pricing tier appears and persists"
+      },
+      {
+        "type": "action",
+        "description": "Create a promo code with invalid inputs (e.g., missing code or discount value)"
+      },
+      {
+        "type": "assertion",
+        "description": "Check for validation errors and preventing saving"
+      },
+      {
+        "type": "action",
+        "description": "Edit an existing promo code and update discount value"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm updates persist and apply correctly during booking"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Admin Bookings Management: View, Update Status, and Notes",
+    "description": "Verify admin can view all bookings, update booking statuses, and add internal notes with changes saved properly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and navigate to /admin/bookings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify list of bookings with relevant data is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Select a booking and change its status (e.g., confirmed, canceled)"
+      },
+      {
+        "type": "action",
+        "description": "Add an internal note to the booking"
+      },
+      {
+        "type": "action",
+        "description": "Save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm that status and notes updates persist and are reflected in booking details"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Admin Customers View and External Sync",
+    "description": "Test viewing customer lists in Admin Customers and External Customers pages including search, date filtering, and CSV export functionalities.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and access /admin/customers and /admin/external-customers pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that customer lists load correctly with accurate data"
+      },
+      {
+        "type": "action",
+        "description": "Use search input to filter customers by name or email"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm search results are relevant and update dynamically"
+      },
+      {
+        "type": "action",
+        "description": "Apply date range filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Check the filtered customer list respects the selected dates"
+      },
+      {
+        "type": "action",
+        "description": "Trigger CSV export"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify CSV file downloads and contains expected customer data"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Admin Events Management: Lead Handling and Updates",
+    "description": "Confirm that admin can manage event inquiry leads, update lead details, and mark statuses appropriately in the Admin Events page.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and navigate to /admin/events"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify event leads are listed with details like contact info and event type"
+      },
+      {
+        "type": "action",
+        "description": "Update lead status or add comments"
+      },
+      {
+        "type": "action",
+        "description": "Save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm updates persist and reflect in the UI"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Notification Toasts on User Actions",
+    "description": "Verify that user actions such as form submissions, booking confirmations, promo code application, and errors trigger appropriate Sonner toast notifications.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit booking form successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm success toast notification appears"
+      },
+      {
+        "type": "action",
+        "description": "Apply invalid promo code"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error toast notification appears"
+      },
+      {
+        "type": "action",
+        "description": "Submit contact form successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that success toast notification is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Analytics Tracking on Key User Actions",
+    "description": "Ensure Meta Pixel and Google Analytics events are correctly fired during user actions such as page views, bookings, and promo code usage without errors.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate through main public pages including Home, Rooms, Room Detail, Booking, Confirmation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page view events are sent to analytics platforms"
+      },
+      {
+        "type": "action",
+        "description": "Complete a booking process including promo code application"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm booking and promo code usage events are tracked"
+      }
+    ]
+  }
+]

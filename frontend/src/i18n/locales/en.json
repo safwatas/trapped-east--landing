@@ -1,0 +1,459 @@
+{
+    "nav": {
+        "home": "Home",
+        "rooms": "Rooms",
+        "specialEvents": "Special Events",
+        "findUs": "Find Us",
+        "contact": "Contact",
+        "bookNow": "Book Now"
+    },
+    "home": {
+        "hero": {
+            "tagline": "Egypt's #1 Escape Room Experience",
+            "titleLine1": "Escape Or",
+            "titleLine2": "Get Caught!",
+            "subtitle": "Can you solve the puzzles and escape before time runs out? Test your wits in our immersive themed rooms.",
+            "viewRooms": "View Our Rooms",
+            "howItWorks": "How It Works"
+        },
+        "howItWorks": {
+            "sectionTag": "The Experience",
+            "sectionTitle": "How It Works",
+            "step1Title": "You Are Locked In",
+            "step1Desc": "When locked in the room, you and your partners will find clues. The trick is to figure out the sequence – it's the only way to escape.",
+            "step2Title": "The Clock Is Ticking",
+            "step2Desc": "You have to collect items, identify clues, solve mysteries, and break puzzles within 60 minutes. Sounds long? Don't beg us for more.",
+            "step3Title": "Escape Quickly",
+            "step3Desc": "Don't panic and keep calm. Focus on the sequence... oh, I forgot – someone might come after you, so escape quickly!"
+        },
+        "featuredRooms": {
+            "sectionTag": "Choose Your Challenge",
+            "sectionTitle": "Featured Rooms",
+            "viewAll": "View All Rooms"
+        },
+        "stats": {
+            "uniqueRooms": "Unique Rooms",
+            "successRate": "Success Rate",
+            "happyEscapers": "Happy Escapers",
+            "starRating": "Star Rating"
+        },
+        "faq": {
+            "sectionTag": "Questions?",
+            "sectionTitle": "Frequently Asked"
+        },
+        "cta": {
+            "title": "Ready to Test Your Limits?",
+            "subtitle": "Don't worry, all our rooms are family friendly... we think. Book your escape room adventure today!",
+            "button": "Book Your Escape"
+        }
+    },
+    "rooms": {
+        "pageTitle": "Our Escape Rooms",
+        "pageSubtitle": "Choose your adventure and test your puzzle-solving skills",
+        "difficulty": "Difficulty",
+        "players": "Players",
+        "duration": "Duration",
+        "fromPrice": "From",
+        "perPerson": "/ person",
+        "bookRoom": "Book This Room",
+        "learnMore": "Learn More",
+        "minutes": "min",
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard",
+        "expert": "Expert"
+    },
+    "roomDetail": {
+        "notFound": "Room not found",
+        "backToRooms": "Back to Rooms",
+        "theStory": "The Story",
+        "horror": "Horror",
+        "off": "Off",
+        "horrorCanBeDisabled": "Horror elements can be disabled",
+        "horrorDisableDesc": "If you prefer a non-horror experience, you can disable horror elements during booking.",
+        "priceVaries": "Price varies based on group size",
+        "bookThisRoom": "Book This Room",
+        "previous": "Previous",
+        "next": "Next"
+    },
+    "booking": {
+        "pageTitle": "Book Your Escape",
+        "step1Title": "Select Date & Time",
+        "step2Title": "Your Details",
+        "step3Title": "Payment",
+        "selectDate": "Select Date",
+        "selectTime": "Select Time Slot",
+        "pickDate": "Pick a date",
+        "availableSlots": "Available Slots",
+        "noSlots": "No available slots for this date",
+        "players": "Number of Players",
+        "roomRequires": "This room requires",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "fullName": "Full Name",
+        "namePlaceholder": "Enter your name",
+        "phone": "Phone Number",
+        "email": "Email (Optional)",
+        "continue": "Continue",
+        "back": "Back",
+        "backTo": "Back to",
+        "bookRoom": "Book",
+        "fillDetails": "Fill in the details below to reserve your escape room experience.",
+        "yourDetails": "Your Details",
+        "confirmBooking": "Confirm Booking",
+        "processing": "Processing...",
+        "submit": "Submit Booking Request",
+        "submitting": "Submitting...",
+        "success": "Booking request submitted!",
+        "error": "Failed to submit booking",
+        "confirmNote": "Your booking will be confirmed via phone or WhatsApp",
+        "total": "Total",
+        "totalPrice": "Total Price",
+        "priceBreakdown": "Price Breakdown",
+        "basePrice": "Base Price",
+        "youSave": "You save",
+        "horrorMode": "Horror Mode",
+        "horrorEnabled": "Horror elements enabled",
+        "horrorDisabled": "Horror elements disabled",
+        "promo": {
+            "label": "Promo Code (Optional)",
+            "placeholder": "Enter promo code",
+            "apply": "Apply",
+            "applied": "Promo code \"{{code}}\" applied!",
+            "enterCode": "Please enter a promo code"
+        },
+        "validations": {
+            "required": "This field is required",
+            "invalidEmail": "Please enter a valid email",
+            "invalidPhone": "Please enter a valid phone number",
+            "selectDate": "Please select a date",
+            "selectTime": "Please select a time slot",
+            "selectPlayers": "Please select number of players"
+        }
+    },
+    "confirmation": {
+        "title": "Booking Confirmed!",
+        "subtitle": "Your escape room adventure is booked",
+        "reference": "Booking Reference",
+        "details": "Booking Details",
+        "room": "Room",
+        "date": "Date",
+        "time": "Time",
+        "players": "Players",
+        "totalPaid": "Total Paid",
+        "reminder": "We've sent a confirmation to your phone. See you there!",
+        "backHome": "Back to Home"
+    },
+    "events": {
+        "pageTitle": "Special Events",
+        "pageSubtitle": "From birthdays to corporate team building, we've got you covered",
+        "learnMore": "Learn More",
+        "requestQuote": "Request a Quote",
+        "backToEvents": "Back to Events",
+        "formSubtitle": "Fill in your details and we'll get back to you shortly",
+        "notFound": "Event Not Found",
+        "notFoundDesc": "We couldn't find the event type you're looking for.",
+        "viewAll": "View All Events",
+        "fromReviews": "from 9000+ reviews",
+        "ctaTitle": "Ready to Book Your {{eventType}}?",
+        "ctaSubtitle": "Get in touch with our events team today and let's create something unforgettable.",
+        "howItWorks": {
+            "title": "How It Works",
+            "step1Title": "Submit Request",
+            "step1Desc": "Fill out the form with your event details and requirements",
+            "step2Title": "Get a Quote",
+            "step2Desc": "Our team will contact you within 24 hours with a custom quote",
+            "step3Title": "Enjoy!",
+            "step3Desc": "Confirm your booking and prepare for an amazing experience"
+        },
+        "partners": {
+            "title": "Trusted By Leading Organizations",
+            "subtitle": "Join hundreds of companies that have experienced our team-building programs"
+        },
+        "corporate": {
+            "title": "Corporate Team Building",
+            "shortDesc": "Boost team morale and collaboration with immersive escape room challenges.",
+            "bullets": [
+                "Custom packages for teams of any size",
+                "Private venue booking available",
+                "Team competition & leaderboards",
+                "Catering & refreshments options",
+                "Certificate of completion for all participants"
+            ],
+            "benefitsItems": [
+                {
+                    "title": "Team Bonding",
+                    "description": "Build stronger connections through collaborative problem-solving"
+                },
+                {
+                    "title": "Flexible Scheduling",
+                    "description": "Book during work hours or after for team outings"
+                },
+                {
+                    "title": "Safe Environment",
+                    "description": "Professional, controlled setting for all team members"
+                },
+                {
+                    "title": "Memorable Experience",
+                    "description": "Create lasting memories that boost morale"
+                }
+            ]
+        },
+        "school": {
+            "title": "Educational School Trips",
+            "shortDesc": "Engage students with fun, educational experiences that promote teamwork and critical thinking.",
+            "bullets": [
+                "Age-appropriate room selection",
+                "Curriculum-aligned puzzles available",
+                "Safe, supervised environment",
+                "Group discounts for schools",
+                "Flexible scheduling for field trips"
+            ],
+            "benefitsItems": [
+                {
+                    "title": "Social Skills",
+                    "description": "Students learn to communicate and work together"
+                },
+                {
+                    "title": "Educational Value",
+                    "description": "Problem-solving, critical thinking, and time management"
+                },
+                {
+                    "title": "Supervised & Safe",
+                    "description": "Adult supervision with age-appropriate challenges"
+                },
+                {
+                    "title": "Fun Learning",
+                    "description": "Education through immersive entertainment"
+                }
+            ]
+        },
+        "birthday": {
+            "title": "Birthday Parties",
+            "shortDesc": "Create unforgettable memories with a thrilling escape room birthday celebration.",
+            "bullets": [
+                "Exclusive party packages",
+                "Private party area included",
+                "Customizable themes",
+                "Birthday cake & decoration add-ons",
+                "Photo opportunities & souvenirs"
+            ],
+            "benefitsItems": [
+                {
+                    "title": "Group Fun",
+                    "description": "Perfect activity for groups of friends"
+                },
+                {
+                    "title": "All-Inclusive",
+                    "description": "Room time, party area, and optional add-ons"
+                },
+                {
+                    "title": "Stress-Free",
+                    "description": "We handle the logistics, you enjoy the party"
+                },
+                {
+                    "title": "Unforgettable",
+                    "description": "A birthday they'll remember forever"
+                }
+            ]
+        },
+        "benefits": {
+            "title": "Why Choose Trapped?",
+            "items": [
+                "Professional game masters",
+                "State-of-the-art rooms",
+                "Flexible booking options",
+                "Dedicated event coordinator"
+            ]
+        }
+    },
+    "eventForms": {
+        "corporate": {
+            "title": "Corporate Team Building",
+            "subtitle": "Request a quote for your team event",
+            "companyName": "Company Name",
+            "companyNamePlaceholder": "Enter your company name",
+            "contactPerson": "Contact Person",
+            "contactPersonPlaceholder": "Full name of contact person",
+            "teamSize": "Team Size",
+            "teamSizeOptions": {
+                "5-10": "5-10 people",
+                "11-20": "11-20 people",
+                "21-30": "21-30 people",
+                "31-50": "31-50 people",
+                "50+": "50+ people"
+            },
+            "preferredTime": "Preferred Time",
+            "preferredTimeOptions": {
+                "morning": "Morning (10 AM - 1 PM)",
+                "afternoon": "Afternoon (1 PM - 5 PM)",
+                "evening": "Evening (5 PM - 10 PM)",
+                "flexible": "Flexible"
+            },
+            "activityType": "What are you looking for?",
+            "activityTypeOptions": {
+                "escape-rooms": "Escape Rooms",
+                "team-building": "Team Building Activities",
+                "private-event": "Private Venue Booking",
+                "competition": "Team Competition/Tournament"
+            },
+            "budget": "Estimated Budget (EGP)",
+            "budgetOptions": {
+                "under-5000": "Under 5,000 EGP",
+                "5000-10000": "5,000 - 10,000 EGP",
+                "10000-20000": "10,000 - 20,000 EGP",
+                "20000+": "20,000+ EGP",
+                "flexible": "Flexible / Discuss"
+            }
+        },
+        "school": {
+            "title": "Educational School Trips",
+            "subtitle": "Request a quote for your school visit",
+            "schoolName": "School Name",
+            "schoolNamePlaceholder": "Enter school name",
+            "coordinatorName": "Coordinator Name",
+            "coordinatorNamePlaceholder": "Full name of coordinator",
+            "gradeLevel": "Grade Level",
+            "gradeLevelOptions": {
+                "elementary": "Elementary (5-10 years)",
+                "middle": "Middle School (11-13 years)",
+                "high": "High School (14-18 years)",
+                "mixed": "Mixed Ages"
+            },
+            "studentCount": "Number of Students",
+            "studentCountOptions": {
+                "10-20": "10-20 students",
+                "21-40": "21-40 students",
+                "41-60": "41-60 students",
+                "60+": "60+ students"
+            },
+            "chaperoneCount": "Number of Chaperones"
+        },
+        "birthday": {
+            "title": "Birthday Parties",
+            "subtitle": "Plan an unforgettable birthday celebration",
+            "parentName": "Parent/Guardian Name",
+            "parentNamePlaceholder": "Full name",
+            "childName": "Birthday Child's Name",
+            "childNamePlaceholder": "Child's name",
+            "childAge": "Child's Age",
+            "childAgePlaceholder": "Age in years",
+            "guestCount": "Number of Guests",
+            "guestCountOptions": {
+                "4-6": "4-6 guests",
+                "7-10": "7-10 guests",
+                "11-15": "11-15 guests",
+                "16-20": "16-20 guests",
+                "20+": "20+ guests"
+            },
+            "partyPackage": "Party Package",
+            "partyPackageOptions": {
+                "basic": "Basic (Escape Room Only)",
+                "standard": "Standard (Room + Party Area)",
+                "premium": "Premium (Full Party Package)",
+                "custom": "Custom (Discuss Options)"
+            },
+            "partyDate": "Party Date",
+            "additionalServices": "Additional Services",
+            "additionalServicesOptions": {
+                "cake": "Birthday Cake",
+                "decorations": "Party Decorations",
+                "photographer": "Photographer",
+                "catering": "Food & Beverages"
+            }
+        },
+        "common": {
+            "phone": "Phone Number",
+            "phonePlaceholder": "+20 1XX XXX XXXX",
+            "email": "Email Address",
+            "emailPlaceholder": "email@example.com",
+            "preferredDate": "Preferred Date",
+            "alternateDate": "Alternate Date (Optional)",
+            "additionalNotes": "Additional Notes",
+            "additionalNotesPlaceholder": "Any special requirements or requests?",
+            "submit": "Submit Request",
+            "submitting": "Submitting...",
+            "selectOption": "Select an option",
+            "required": "required"
+        },
+        "success": {
+            "title": "Thank You!",
+            "message": "Our team will contact you shortly by phone or WhatsApp to discuss your event details."
+        },
+        "errors": {
+            "required": "{{field}} is required",
+            "invalidEmail": "Please enter a valid email",
+            "invalidPhone": "Please enter a valid phone number",
+            "submitFailed": "Something went wrong. Please try again or contact us directly.",
+            "configMissing": "Form configuration is missing.",
+            "contactSupport": "Please contact support if this issue persists."
+        }
+    },
+    "findUs": {
+        "tagline": "Location",
+        "pageTitle": "Find Us",
+        "pageSubtitle": "Visit our New Cairo branch in the Fifth Settlement. We're ready to trap you!",
+        "address": "Address",
+        "directions": "Get Directions",
+        "openingHours": "Opening Hours",
+        "everyday": "Every Day",
+        "lastBooking": "Last booking slot at",
+        "quickContact": "Quick Contact",
+        "followUs": "Follow Us"
+    },
+    "contact": {
+        "tagline": "Get in Touch",
+        "pageTitle": "Contact Us",
+        "pageSubtitle": "Have questions or need assistance? We're here to help!",
+        "callUs": "Call Us",
+        "whatsapp": "WhatsApp",
+        "emailUs": "Email",
+        "visitUs": "Visit Us",
+        "messageUs": "Message Us",
+        "directContact": "Direct Contact",
+        "responseTime": "We typically respond within 30 minutes during opening hours",
+        "sendMessage": "Send a Message",
+        "successMessage": "Message sent successfully! We'll get back to you soon.",
+        "form": {
+            "name": "Name",
+            "namePlaceholder": "Your name",
+            "email": "Email",
+            "emailPlaceholder": "your@email.com",
+            "phone": "Phone (Optional)",
+            "phonePlaceholder": "+20 1XX XXX XXXX",
+            "message": "Message",
+            "messagePlaceholder": "How can we help you?",
+            "submit": "Send Message",
+            "sending": "Sending..."
+        }
+    },
+    "footer": {
+        "quickLinks": "Quick Links",
+        "ourRooms": "Our Rooms",
+        "findUs": "Find Us",
+        "contactUs": "Contact Us",
+        "contact": "Contact",
+        "openingHours": "Opening Hours",
+        "everyday": "Every Day",
+        "allRightsReserved": "All rights reserved."
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Something went wrong",
+        "tryAgain": "Try Again",
+        "close": "Close",
+        "egp": "EGP"
+    },
+    "faq": {
+        "q1": "What is an escape room?",
+        "a1": "An escape room is a real-life adventure game where you and your team are locked in a themed room and must solve puzzles and find clues to escape within 60 minutes.",
+        "q2": "How many players can participate?",
+        "a2": "Our rooms accommodate 2-6 players depending on the room. We recommend having at least 3 players for the best experience.",
+        "q3": "Is it scary?",
+        "a3": "While some rooms have spooky themes, they are designed to be thrilling, not terrifying. We have family-friendly options available.",
+        "q4": "What happens if we don't escape in time?",
+        "a4": "Don't worry! Our game masters will guide you to the solution so you can still enjoy the full experience and see how the story ends.",
+        "q5": "Do I need to book in advance?",
+        "a5": "Yes, we highly recommend booking in advance, especially on weekends. You can book online or call us directly."
+    }
+}

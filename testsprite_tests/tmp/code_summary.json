@@ -1,0 +1,281 @@
+{
+    "project_name": "trapped-east--landing",
+    "project_description": "Trapped Egypt - Escape Room Booking Platform for the New Cairo branch. A high-conversion, mobile-first landing page with a dark cinematic theme, real-time booking system, and admin dashboard.",
+    "tech_stack": {
+        "frontend": {
+            "framework": "React 19 (Create React App with CRACO)",
+            "language": "JavaScript (JSX)",
+            "styling": "TailwindCSS 3.4 with custom CSS variables",
+            "ui_components": "Radix UI (Dialog, Select, Tabs, etc.) + shadcn/ui",
+            "state_management": "React Hooks (useState, useEffect, useCallback, useMemo)",
+            "routing": "React Router DOM v7",
+            "i18n": "react-i18next (English + Arabic)",
+            "form_handling": "React Hook Form + Zod validation",
+            "http_client": "Axios + Supabase JS Client",
+            "charts": "Recharts",
+            "notifications": "Sonner (toast notifications)",
+            "icons": "Lucide React",
+            "date_handling": "date-fns",
+            "unique_ids": "uuid v13"
+        },
+        "backend": {
+            "framework": "FastAPI (Python)",
+            "database_primary": "Supabase (PostgreSQL)",
+            "database_secondary": "MongoDB (via Motor async driver)",
+            "auth": "Supabase Auth"
+        },
+        "deployment": {
+            "platform": "Vercel",
+            "build_tool": "CRACO (Create React App Configuration Override)"
+        }
+    },
+    "project_structure": {
+        "root": "/Users/safwatas/Documents/GitHub/trapped-east--landing",
+        "frontend_root": "/Users/safwatas/Documents/GitHub/trapped-east--landing/frontend",
+        "backend_root": "/Users/safwatas/Documents/GitHub/trapped-east--landing/backend",
+        "entry_point": "frontend/src/index.js",
+        "main_app": "frontend/src/App.js",
+        "config_files": [
+            "frontend/craco.config.js",
+            "frontend/tailwind.config.js",
+            "frontend/package.json",
+            "frontend/vercel.json",
+            "frontend/.env"
+        ]
+    },
+    "features": {
+        "public_pages": [
+            {
+                "name": "Home Page",
+                "file": "frontend/src/pages/HomePage.jsx",
+                "route": "/",
+                "description": "Landing page with hero carousel, room cards, how-it-works section, and CTA. Fetches rooms from Supabase.",
+                "key_components": [
+                    "HeroBackgroundCarousel",
+                    "RoomCard",
+                    "Navbar",
+                    "Footer"
+                ]
+            },
+            {
+                "name": "Rooms Page",
+                "file": "frontend/src/pages/RoomsPage.jsx",
+                "route": "/rooms",
+                "description": "Grid display of all active escape rooms with offer badges. Fetches rooms and active offers from Supabase.",
+                "key_components": [
+                    "RoomCard",
+                    "Navbar",
+                    "Footer"
+                ]
+            },
+            {
+                "name": "Room Detail Page",
+                "file": "frontend/src/pages/RoomDetailPage.jsx",
+                "route": "/rooms/:slug",
+                "description": "Individual room details with images, difficulty, player count, duration, and pricing. Links to booking page.",
+                "key_components": [
+                    "Navbar",
+                    "Footer"
+                ]
+            },
+            {
+                "name": "Booking Page",
+                "file": "frontend/src/pages/BookingPage.jsx",
+                "route": "/book/:slug",
+                "description": "Multi-step booking flow: select date, time slot, player count, enter customer info, apply promo code, and submit. Real-time availability checking.",
+                "key_components": [
+                    "Calendar (react-day-picker)",
+                    "Navbar",
+                    "Footer"
+                ],
+                "key_functions": [
+                    "loadData",
+                    "loadSlots",
+                    "handleApplyPromo",
+                    "handlePlayerChange",
+                    "validateForm",
+                    "handleSubmit"
+                ]
+            },
+            {
+                "name": "Confirmation Page",
+                "file": "frontend/src/pages/ConfirmationPage.jsx",
+                "route": "/confirmation/:id",
+                "description": "Post-booking confirmation showing booking details, total price, and contact options."
+            },
+            {
+                "name": "Events Page",
+                "file": "frontend/src/pages/EventsPage.jsx",
+                "route": "/events",
+                "description": "Special events overview with cards for Corporate, School Trips, and Birthday events."
+            },
+            {
+                "name": "Contact Page",
+                "file": "frontend/src/pages/ContactPage.jsx",
+                "route": "/contact",
+                "description": "Contact form (name, email, phone, message) and direct contact options (phone, WhatsApp, email)."
+            },
+            {
+                "name": "Find Us Page",
+                "file": "frontend/src/pages/FindUsPage.jsx",
+                "route": "/find-us",
+                "description": "Location page with embedded Google Maps, address, opening hours, and social media links."
+            }
+        ],
+        "admin_pages": [
+            {
+                "name": "Admin Login",
+                "file": "frontend/src/pages/admin/AdminLoginPage.jsx",
+                "route": "/admin/login",
+                "description": "Supabase email/password authentication for admin access."
+            },
+            {
+                "name": "Admin Dashboard",
+                "file": "frontend/src/pages/admin/AdminDashboard.jsx",
+                "route": "/admin/dashboard",
+                "description": "Overview dashboard with booking statistics and charts."
+            },
+            {
+                "name": "Admin Calendar",
+                "file": "frontend/src/pages/admin/AdminCalendar.jsx",
+                "route": "/admin/calendar",
+                "description": "Calendar view for managing bookings by date with the ability to create bookings."
+            },
+            {
+                "name": "Admin Bookings",
+                "file": "frontend/src/pages/admin/AdminBookings.jsx",
+                "route": "/admin/bookings",
+                "description": "Manage all bookings with status updates and internal notes."
+            },
+            {
+                "name": "Admin Rooms",
+                "file": "frontend/src/pages/admin/AdminRooms.jsx",
+                "route": "/admin/rooms",
+                "description": "Manage escape rooms (edit details, deactivate)."
+            },
+            {
+                "name": "Admin Pricing",
+                "file": "frontend/src/pages/admin/AdminPricing.jsx",
+                "route": "/admin/pricing",
+                "description": "Manage pricing tiers and promo codes."
+            },
+            {
+                "name": "Admin Customers",
+                "file": "frontend/src/pages/admin/AdminCustomers.jsx",
+                "route": "/admin/customers",
+                "description": "View customer list from bookings."
+            },
+            {
+                "name": "Admin External Customers",
+                "file": "frontend/src/pages/admin/AdminExternalCustomers.jsx",
+                "route": "/admin/external-customers",
+                "description": "Customer explorer with external API sync, search, date range filtering, and CSV export."
+            },
+            {
+                "name": "Admin Events",
+                "file": "frontend/src/pages/admin/AdminEvents.jsx",
+                "route": "/admin/events",
+                "description": "Manage event inquiries and leads."
+            }
+        ],
+        "services": [
+            {
+                "name": "Booking Service",
+                "file": "frontend/src/lib/bookingService.js",
+                "description": "Core business logic layer - CRUD operations for rooms, bookings, time slots, and promo codes via Supabase."
+            },
+            {
+                "name": "Pricing Engine",
+                "file": "frontend/src/lib/pricingEngine.js",
+                "description": "Dynamic pricing calculation, promo code validation, and offer management."
+            },
+            {
+                "name": "External Customer Service",
+                "file": "frontend/src/lib/externalCustomerService.js",
+                "description": "Integration with external API for customer data sync and management."
+            },
+            {
+                "name": "Event Service",
+                "file": "frontend/src/lib/eventService.js",
+                "description": "Event lead management and inquiry handling."
+            },
+            {
+                "name": "Analytics",
+                "file": "frontend/src/lib/analytics.js",
+                "description": "Meta Pixel and Google Analytics tracking integration."
+            },
+            {
+                "name": "Customer ID Tracker",
+                "file": "frontend/src/lib/customerIdTracker.js",
+                "description": "Tracks and identifies returning customers."
+            },
+            {
+                "name": "Room Adapter",
+                "file": "frontend/src/lib/adapters.js",
+                "description": "Transforms raw Supabase room data into frontend-friendly format with i18n support."
+            },
+            {
+                "name": "Supabase Client",
+                "file": "frontend/src/lib/supabase.js",
+                "description": "Supabase client initialization with environment variables."
+            }
+        ],
+        "shared_components": [
+            {
+                "name": "Navbar",
+                "file": "frontend/src/components/layout/Navbar.jsx",
+                "description": "Global navigation with links to Rooms, Events, Find Us, Contact, and Book Now CTA. Language switcher (EN/AR)."
+            },
+            {
+                "name": "Footer",
+                "file": "frontend/src/components/layout/Footer.jsx",
+                "description": "Site footer with contact info, opening hours, social links, and copyright."
+            },
+            {
+                "name": "RoomCard",
+                "file": "frontend/src/components/rooms/RoomCard.jsx",
+                "description": "Reusable room card component showing room image, name, difficulty, player count, and offer badge."
+            },
+            {
+                "name": "HeroBackgroundCarousel",
+                "file": "frontend/src/components/hero/HeroBackgroundCarousel.jsx",
+                "description": "Auto-playing background image carousel for the home page hero section."
+            },
+            {
+                "name": "UI Components (shadcn)",
+                "directory": "frontend/src/components/ui/",
+                "description": "47 shadcn/ui components including Button, Input, Dialog, Select, Tabs, Calendar, Toast, etc."
+            }
+        ]
+    },
+    "authentication": {
+        "type": "Supabase Auth",
+        "method": "Email/Password",
+        "admin_route": "/admin/login",
+        "protected_routes": "/admin/*"
+    },
+    "database": {
+        "type": "Supabase (PostgreSQL)",
+        "tables": [
+            "rooms",
+            "room_images",
+            "time_slots",
+            "bookings",
+            "pricing_tiers",
+            "promo_codes",
+            "offers",
+            "event_leads"
+        ],
+        "schema_file": "backend/supabase_schema.sql"
+    },
+    "i18n": {
+        "supported_languages": [
+            "en",
+            "ar"
+        ],
+        "direction_support": "LTR and RTL",
+        "translation_files": "frontend/src/i18n/"
+    },
+    "local_port": 3000,
+    "base_url": "http://localhost:3000"
+}

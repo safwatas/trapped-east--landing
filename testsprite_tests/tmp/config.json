@@ -1,0 +1,22 @@
+{
+  "status": "commited",
+  "projectPath": "/Users/safwatas/Documents/GitHub/trapped-east--landing",
+  "projectName": "trapped-east--landing",
+  "localPort": 3000,
+  "type": "frontend",
+  "scope": "codebase",
+  "testScope": "codebase",
+  "localEndpoint": "http://localhost:3000/",
+  "needLogin": false,
+  "executionArgs": {
+    "projectName": "trapped-east--landing",
+    "projectPath": "/Users/safwatas/Documents/GitHub/trapped-east--landing",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-78ZMqccIxwL6DG7yXtBIemihOOb6br_--iMcF9lCbSYYaHfGJZ5oqQBGWGxzNaEkc8gv1ytod0NaS13Cy156iOLvOyysbPlyib6uk2BtJYNcdl6EgkFAEziGExDuL0YHaK4"
+    }
+  },
+  "serverPort": 55738,
+  "proxy": "http://b96e74ed-8c6e-4567-b01a-4ca3bd0c3980:1Zo0gYpQUh0YTO4ntEwvZtTtEzj2dzDf@tun.testsprite.com:8080"
+}

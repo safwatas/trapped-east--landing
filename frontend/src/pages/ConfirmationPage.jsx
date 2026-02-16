@@ -4,7 +4,7 @@ import { CheckCircle, Calendar, Clock, Users, Phone, MessageCircle, ArrowRight }
 import { Button } from '../components/ui/button';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { branchInfo } from '../data/mock';
+import { siteConfig, getPhoneLink, getWhatsAppLink } from '../config/site';
 
 export default function ConfirmationPage() {
   const location = useLocation();
@@ -87,13 +87,13 @@ export default function ConfirmationPage() {
               Questions? Contact us directly:
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href={`tel:${branchInfo.phone}`}>
+              <a href={getPhoneLink()}>
                 <Button variant="outline" className="w-full sm:w-auto bg-transparent border-white/15 text-white hover:border-[color:var(--brand-accent)] hover:text-[color:var(--brand-accent)] h-11 rounded-xl">
                   <Phone className="w-4 h-4 mr-2" />
                   Call Us
                 </Button>
               </a>
-              <a href={`https://wa.me/${branchInfo.whatsapp.replace('+', '')}`} target="_blank" rel="noopener noreferrer">
+              <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" className="w-full sm:w-auto bg-transparent border-white/15 text-white hover:border-green-500 hover:text-green-400 h-11 rounded-xl">
                   <MessageCircle className="w-4 h-4 mr-2" />
                   WhatsApp

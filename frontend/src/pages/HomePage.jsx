@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Lock, Clock, Users, Zap, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import RoomCard from '../components/rooms/RoomCard';
+import HeroBackgroundCarousel from '../components/hero/HeroBackgroundCarousel';
 import { bookingService } from '../lib/bookingService';
 import { roomAdapter } from '../lib/adapters';
-import { faqs } from '../data/mock';
 
 const HowItWorksCard = ({ icon: Icon, title, description, step }) => (
   <div className="relative group">
-    <div className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-[color:var(--brand-accent)] text-black font-display font-bold flex items-center justify-center text-lg">
+    <div className="absolute -top-4 -left-4 rtl:-left-auto rtl:-right-4 w-10 h-10 rounded-full bg-[color:var(--brand-accent)] text-black font-display font-bold flex items-center justify-center text-lg">
       {step}
     </div>
     <div className="p-6 md:p-8 rounded-2xl bg-[color:var(--bg-surface)] border border-white/10 h-full transition-all duration-300 group-hover:border-[color:var(--brand-accent)]/30">
@@ -26,6 +27,7 @@ const HowItWorksCard = ({ icon: Icon, title, description, step }) => (
 );
 
 export default function HomePage() {
+  const { t, i18n } = useTranslation();
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,7 +35,8 @@ export default function HomePage() {
     const fetchRooms = async () => {
       try {
         const data = await bookingService.getRooms();
-        setRooms(data.map(roomAdapter));
+        // Pass current language to adapter for localized content
+        setRooms(data.map(r => roomAdapter(r, i18n.language)));
       } catch (err) {
         console.error("Home fetch error:", err);
       } finally {
@@ -41,9 +44,23 @@ export default function HomePage() {
       }
     };
     fetchRooms();
-  }, []);
+  }, [i18n.language]);
+
+  // Extract room images for hero carousel
+  const roomImages = useMemo(() => {
+    return rooms.map(room => room.image).filter(Boolean);
+  }, [rooms]);
 
   const featuredRooms = rooms.slice(0, 3);
+
+  // FAQ items with translations
+  const faqs = [
+    { question: t('faq.q1'), answer: t('faq.a1') },
+    { question: t('faq.q2'), answer: t('faq.a2') },
+    { question: t('faq.q3'), answer: t('faq.a3') },
+    { question: t('faq.q4'), answer: t('faq.a4') },
+    { question: t('faq.q5'), answer: t('faq.a5') },
+  ];
 
   return (
     <div className="min-h-screen bg-[color:var(--bg-base)]">
@@ -51,44 +68,32 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-[color:var(--bg-base)]" />
-          <div
-            className="absolute inset-0 opacity-30"
-            style={{
-              backgroundImage: 'url(https://trappedegypt.com/wp-content/uploads/2022/11/TRAPPED-NEW-CAIRO-ROOMS.jpg.webp)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'grayscale(30%)'
-            }}
-          />
-        </div>
+        {/* Background Carousel */}
+        <HeroBackgroundCarousel roomImages={roomImages} />
 
         {/* Content */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 text-center py-20">
+        <div className="relative z-30 max-w-6xl mx-auto px-4 md:px-8 text-center py-20">
           <div className="animate-slideUp">
             <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--brand-accent)] mb-6 font-medium">
-              Egypt's #1 Escape Room Experience
+              {t('home.hero.tagline')}
             </p>
             <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] text-white mb-6">
-              Escape Or<br />
-              <span className="text-[color:var(--brand-accent)]">Get Caught!</span>
+              {t('home.hero.titleLine1')}<br />
+              <span className="text-[color:var(--brand-accent)]">{t('home.hero.titleLine2')}</span>
             </h1>
             <p className="text-lg md:text-xl text-[color:var(--text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed">
-              Can you solve the puzzles and escape before time runs out?
-              Test your wits in our immersive themed rooms.
+              {t('home.hero.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/rooms">
-                <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 px-8 rounded-xl text-lg animate-pulse-glow">
-                  View Our Rooms
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 px-8 rounded-xl text-lg animate-pulse-glow ltr-flex">
+                  {t('home.hero.viewRooms')}
+                  <ArrowRight className="ml-2 rtl:ml-0 rtl:mr-2 w-5 h-5" />
                 </Button>
               </Link>
               <a href="#how-it-works">
                 <Button variant="outline" className="bg-transparent text-white border-white/20 hover:border-white/40 h-14 px-8 rounded-xl text-lg">
-                  How It Works
+                  {t('home.hero.howItWorks')}
                 </Button>
               </a>
             </div>
@@ -96,7 +101,7 @@ export default function HomePage() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-30">
           <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
             <div className="w-1.5 h-3 rounded-full bg-white/50" />
           </div>
@@ -107,27 +112,31 @@ export default function HomePage() {
       <section id="how-it-works" className="py-20 md:py-28 px-4 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--brand-accent)] mb-3">The Experience</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-white">How It Works</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--brand-accent)] mb-3">
+              {t('home.howItWorks.sectionTag')}
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-white">
+              {t('home.howItWorks.sectionTitle')}
+            </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 md:gap-6 stagger-children">
             <HowItWorksCard
               icon={Lock}
-              title="You Are Locked In"
-              description="When locked in the room, you and your partners will find clues. The trick is to figure out the sequence – it's the only way to escape."
+              title={t('home.howItWorks.step1Title')}
+              description={t('home.howItWorks.step1Desc')}
               step={1}
             />
             <HowItWorksCard
               icon={Clock}
-              title="The Clock Is Ticking"
-              description="You have to collect items, identify clues, solve mysteries, and break puzzles within 60 minutes. Sounds long? Don't beg us for more."
+              title={t('home.howItWorks.step2Title')}
+              description={t('home.howItWorks.step2Desc')}
               step={2}
             />
             <HowItWorksCard
               icon={Zap}
-              title="Escape Quickly"
-              description="Don't panic and keep calm. Focus on the sequence... oh, I forgot – someone might come after you, so escape quickly!"
+              title={t('home.howItWorks.step3Title')}
+              description={t('home.howItWorks.step3Desc')}
               step={3}
             />
           </div>
@@ -139,13 +148,17 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--brand-accent)] mb-3">Choose Your Challenge</p>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-white">Featured Rooms</h2>
+              <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--brand-accent)] mb-3">
+                {t('home.featuredRooms.sectionTag')}
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-white">
+                {t('home.featuredRooms.sectionTitle')}
+              </h2>
             </div>
             <Link to="/rooms">
-              <Button variant="outline" className="bg-transparent text-white border-white/20 hover:border-[color:var(--brand-accent)] hover:text-[color:var(--brand-accent)] rounded-xl">
-                View All Rooms
-                <ArrowRight className="ml-2 w-4 h-4" />
+              <Button variant="outline" className="bg-transparent text-white border-white/20 hover:border-[color:var(--brand-accent)] hover:text-[color:var(--brand-accent)] rounded-xl ltr-flex">
+                {t('home.featuredRooms.viewAll')}
+                <ArrowRight className="ml-2 rtl:ml-0 rtl:mr-2 w-4 h-4" />
               </Button>
             </Link>
           </div>
@@ -170,19 +183,19 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <p className="font-display text-4xl md:text-5xl font-bold text-[color:var(--brand-accent)]">9</p>
-              <p className="text-sm text-[color:var(--text-muted)] mt-2">Unique Rooms</p>
+              <p className="text-sm text-[color:var(--text-muted)] mt-2">{t('home.stats.uniqueRooms')}</p>
             </div>
             <div>
               <p className="font-display text-4xl md:text-5xl font-bold text-[color:var(--brand-accent)]">72%</p>
-              <p className="text-sm text-[color:var(--text-muted)] mt-2">Success Rate</p>
+              <p className="text-sm text-[color:var(--text-muted)] mt-2">{t('home.stats.successRate')}</p>
             </div>
             <div>
               <p className="font-display text-4xl md:text-5xl font-bold text-[color:var(--brand-accent)]">10K+</p>
-              <p className="text-sm text-[color:var(--text-muted)] mt-2">Happy Escapers</p>
+              <p className="text-sm text-[color:var(--text-muted)] mt-2">{t('home.stats.happyEscapers')}</p>
             </div>
             <div>
               <p className="font-display text-4xl md:text-5xl font-bold text-[color:var(--brand-accent)]">5.0</p>
-              <p className="text-sm text-[color:var(--text-muted)] mt-2">Star Rating</p>
+              <p className="text-sm text-[color:var(--text-muted)] mt-2">{t('home.stats.starRating')}</p>
             </div>
           </div>
         </div>
@@ -192,8 +205,12 @@ export default function HomePage() {
       <section className="py-20 md:py-28 px-4 md:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--brand-accent)] mb-3">Questions?</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-white">Frequently Asked</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--brand-accent)] mb-3">
+              {t('home.faq.sectionTag')}
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-white">
+              {t('home.faq.sectionTitle')}
+            </h2>
           </div>
 
           <Accordion type="single" collapsible className="space-y-4">
@@ -203,7 +220,7 @@ export default function HomePage() {
                 value={`item-${index}`}
                 className="rounded-2xl bg-[color:var(--bg-surface)] border border-white/10 px-6 data-[state=open]:border-[color:var(--brand-accent)]/30"
               >
-                <AccordionTrigger className="text-left font-display font-semibold text-white hover:text-[color:var(--brand-accent)] hover:no-underline py-5">
+                <AccordionTrigger className="text-left rtl:text-right font-display font-semibold text-white hover:text-[color:var(--brand-accent)] hover:no-underline py-5">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-[color:var(--text-muted)] pb-5 leading-relaxed">
@@ -219,16 +236,15 @@ export default function HomePage() {
       <section className="py-20 md:py-28 px-4 md:px-8 bg-[color:var(--bg-surface)]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-6">
-            Ready to Test Your Limits?
+            {t('home.cta.title')}
           </h2>
           <p className="text-lg text-[color:var(--text-secondary)] mb-10 max-w-2xl mx-auto">
-            Don't worry, all our rooms are family friendly... we think.
-            Book your escape room adventure today!
+            {t('home.cta.subtitle')}
           </p>
           <Link to="/rooms">
-            <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 px-10 rounded-xl text-lg">
-              Book Your Escape
-              <ArrowRight className="ml-2 w-5 h-5" />
+            <Button className="bg-[color:var(--brand-accent)] text-black hover:bg-[color:var(--brand-accent-2)] font-semibold h-14 px-10 rounded-xl text-lg ltr-flex">
+              {t('home.cta.button')}
+              <ArrowRight className="ml-2 rtl:ml-0 rtl:mr-2 w-5 h-5" />
             </Button>
           </Link>
         </div>
