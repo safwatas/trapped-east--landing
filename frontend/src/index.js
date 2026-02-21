@@ -2,7 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "@/index.css";
 import "@/i18n"; // Initialize i18n before App
+import { initPostHog } from "@/lib/posthog"; // Initialize PostHog analytics
 import App from "@/App";
+
+// Initialize PostHog (only activates if REACT_APP_POSTHOG_KEY is set)
+initPostHog();
 
 
 // Suppress ResizeObserver errors BEFORE React mounts

@@ -13,7 +13,8 @@ import {
   X,
   Loader2,
   PartyPopper,
-  Database
+  Database,
+  BarChart3
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../../components/ui/sheet';
@@ -29,6 +30,7 @@ const navItems = [
   { name: 'Pricing', path: '/admin/pricing', icon: Tag },
   { name: 'Customers', path: '/admin/customers', icon: Users },
   { name: 'Customer Explorer', path: '/admin/external-customers', icon: Database },
+  { name: 'Live Analytics', path: '/admin/analytics', icon: BarChart3 },
 ];
 
 export default function AdminLayout() {

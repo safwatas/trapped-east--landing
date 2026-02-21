@@ -1,6 +1,7 @@
 /**
- * Analytics utility for fire standardized events to GTM, Meta Pixel, and GA4.
+ * Analytics utility for firing standardized events to GTM, Meta Pixel, GA4, and PostHog.
  */
+import posthog from 'posthog-js';
 
 export const analytics = {
     /**
@@ -43,9 +44,14 @@ export const analytics = {
             window.fbq('track', metaEventName, enrichedParams);
         }
 
-        // 3. PostHog (if initialized)
-        if (window.posthog) {
-            window.posthog.capture(eventName, enrichedParams);
+        // 3. PostHog
+        try {
+            const ph = window.posthog || posthog;
+            if (ph && typeof ph.capture === 'function') {
+                ph.capture(eventName, enrichedParams);
+            }
+        } catch (e) {
+            // PostHog not initialized, skip silently
         }
 
         // 4. Meta CAPI (Server-side)

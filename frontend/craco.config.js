@@ -34,6 +34,7 @@ if (config.enableHealthCheck) {
 
 // Load external API middleware for local development
 const setupExternalCustomersAPI = require("./plugins/external-api/customers-middleware");
+const setupAnalyticsAPI = require("./plugins/analytics-api/analytics-middleware");
 
 const webpackConfig = {
   jest: {
@@ -129,6 +130,9 @@ webpackConfig.devServer = (devServerConfig) => {
 
   // Setup external customers API middleware for local development
   devServerConfig = setupExternalCustomersAPI(devServerConfig);
+
+  // Setup analytics API middleware for local development
+  devServerConfig = setupAnalyticsAPI(devServerConfig);
 
   return devServerConfig;
 };

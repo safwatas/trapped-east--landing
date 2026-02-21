@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import ScrollToTop from "./components/ScrollToTop";
+import { trackPageView } from "./lib/posthog";
 
 // Suppress ResizeObserver errors (common with Radix UI components like Select/Dialog)
 // These errors are harmless and occur frequently with dynamic UI components
@@ -67,12 +68,26 @@ import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminCalendar from "./pages/admin/AdminCalendar";
 import AdminExternalCustomers from "./pages/admin/AdminExternalCustomers";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+
+// PostHog SPA page tracker - fires on every route change
+function PostHogPageTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    trackPageView(location.pathname, {
+      search: location.search,
+      hash: location.hash
+    });
+  }, [location.pathname, location.search, location.hash]);
+  return null;
+}
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <ScrollToTop />
+        <PostHogPageTracker />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
@@ -101,6 +116,7 @@ function App() {
             <Route path="customers" element={<AdminCustomers />} />
             <Route path="external-customers" element={<AdminExternalCustomers />} />
             <Route path="events" element={<AdminEvents />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
           </Route>
         </Routes>
       </BrowserRouter>
