@@ -36,6 +36,14 @@ if (config.enableHealthCheck) {
 const setupExternalCustomersAPI = require("./plugins/external-api/customers-middleware");
 
 const webpackConfig = {
+  jest: {
+    configure: {
+      moduleNameMapper: {
+        '^react-router-dom$': '<rootDir>/node_modules/react-router-dom/dist/index.js',
+        '^react-router$': '<rootDir>/node_modules/react-router/dist/index.js',
+      },
+    },
+  },
   eslint: {
     configure: {
       extends: ["plugin:react-hooks/recommended"],
